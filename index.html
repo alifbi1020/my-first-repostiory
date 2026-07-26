@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>سامانه سرا خانه کارگر</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+<style>
+  :root{
+    --teal-dark:#0c3a3e;
+    --teal:#127079;
+    --teal-mid:#0f6169;
+    --teal-light:#e7f3f2;
+    --gold:#dcb35c;
+    --gold-dark:#c99f45;
+    --text:#1f2d2e;
+    --muted:#5c7376;
+    --bg:#f6f9f9;
+    --white:#ffffff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    font-family:'Vazirmatn', Tahoma, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    direction:rtl;
+  }
+  a{color:inherit; text-decoration:none;}
+  ul{list-style:none;}
+  img,svg{display:block;}
+
+  /* ===== Header ===== */
+  header.site-header{
+    background:var(--teal);
+    border-bottom:3px solid var(--gold);
+  }
+  .header-inner{
+    max-width:1400px;
+    margin:0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:14px 28px;
+    gap:24px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand-emblem{
+    width:46px;
+    height:46px;
+    border-radius:50%;
+    background:var(--white);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+    overflow:hidden;
+    box-shadow:0 0 0 2px var(--gold);
+  }
+  .brand-emblem svg{width:26px; height:26px;}
+  .brand-emblem img{width:100%; height:100%; object-fit:cover;}
+  .brand-text h1{
+    font-size:18px;
+    font-weight:800;
+    color:var(--white);
+    line-height:1.3;
+  }
+  .brand-text span{
+    font-size:11.5px;
+    color:#d7ece9;
+    font-weight:400;
+    display:block;
+  }
+  nav.main-nav ul{
+    display:flex;
+    align-items:center;
+    gap:30px;
+  }
+  nav.main-nav a{
+    color:var(--white);
+    font-size:14.5px;
+    font-weight:500;
+    white-space:nowrap;
+    opacity:.95;
+    transition:opacity .2s;
+  }
+  nav.main-nav a:hover{opacity:1; text-decoration:underline; text-underline-offset:4px;}
+  .dropdown{display:flex; align-items:center; gap:4px;}
+  .dropdown svg{width:11px; height:11px; margin-top:2px;}
+  .login-btn{
+    background:var(--gold);
+    color:var(--teal-dark);
+    font-weight:700;
+    font-size:14.5px;
+    padding:9px 30px;
+    border-radius:6px;
+    border:none;
+    cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .login-btn:hover{background:var(--gold-dark); transform:translateY(-1px);}
+
+  .header-actions{display:flex; align-items:center; gap:22px;}
+
+  /* mobile nav toggle */
+  .nav-toggle{display:none; background:none; border:none; cursor:pointer;}
+  .nav-toggle svg{width:26px; height:26px; stroke:var(--white);}
+
+  @media(max-width:960px){
+    nav.main-nav{
+      position:absolute; top:100%; right:0; left:0;
+      background:var(--teal); flex-direction:column;
+      display:none; padding:10px 20px 20px;
+    }
+    nav.main-nav.open{display:block;}
+    nav.main-nav ul{flex-direction:column; align-items:flex-start; gap:16px;}
+    .nav-toggle{display:block;}
+    header.site-header{position:relative;}
+  }
+
+  /* ===== Body ===== */
+  main{
+    max-width:1400px;
+    margin:0 auto;
+    padding:44px 28px 90px;
+  }
+
+  /* --- Search bar --- */
+  .search-bar{
+    display:flex;
+    gap:16px;
+    background:var(--white);
+    border-radius:18px;
+    padding:16px;
+    box-shadow:0 10px 30px rgba(12,58,62,.08);
+    margin-bottom:56px;
+  }
+  .search-card{
+    flex:1;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:14px 18px;
+    border-radius:12px;
+    border:1.5px solid #e3edec;
+    background:var(--teal-light);
+    cursor:pointer;
+    transition:border-color .2s, background .2s;
+    text-align:right;
+  }
+  .search-card:hover{border-color:var(--teal);}
+  .search-card .sc-icon{
+    width:42px; height:42px;
+    border-radius:50%;
+    background:var(--white);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    box-shadow:0 0 0 1.5px #d7e6e5 inset;
+  }
+  .search-card .sc-icon svg{width:20px; height:20px; stroke:var(--teal);}
+  .search-card .sc-text{display:flex; flex-direction:column; gap:3px; min-width:0;}
+  .search-card .sc-label{font-size:12.5px; color:var(--muted); font-weight:500;}
+  .search-card .sc-value{font-size:15px; font-weight:700; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+  .search-card.date-card{cursor:default;}
+  .search-card.date-card:hover{border-color:#e3edec;}
+  .search-card.submit-card{
+    flex:0 0 auto;
+    background:var(--gold);
+    border-color:var(--gold);
+    justify-content:center;
+    min-width:150px;
+  }
+  .search-card.submit-card:hover{background:var(--gold-dark); border-color:var(--gold-dark);}
+  .search-card.submit-card .sc-icon{background:var(--teal-dark); box-shadow:none;}
+  .search-card.submit-card .sc-icon svg{stroke:var(--white);}
+  .search-card.submit-card .sc-value{color:var(--teal-dark); font-size:16px;}
+
+  @media(max-width:800px){
+    .search-bar{flex-direction:column;}
+    .search-card.submit-card{width:100%;}
+  }
+
+  /* --- Modal --- */
+  .modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(12,58,62,.55);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal-box{
+    background:var(--white);
+    border-radius:18px;
+    width:100%;
+    max-width:480px;
+    padding:26px;
+    max-height:80vh;
+    overflow-y:auto;
+    animation:pop .18s ease;
+  }
+  @keyframes pop{from{transform:scale(.95); opacity:0;} to{transform:scale(1); opacity:1;}}
+  .modal-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .modal-head h2{font-size:17px; font-weight:800; color:var(--teal-dark);}
+  .modal-close{
+    width:32px; height:32px; border-radius:50%;
+    border:none; background:var(--teal-light); cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .modal-close svg{width:16px; height:16px; stroke:var(--teal-dark);}
+  .city-grid{
+    display:grid;
+    grid-template-columns:repeat(2, 1fr);
+    gap:10px;
+  }
+  .city-btn{
+    display:flex; align-items:center; gap:8px;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1.5px solid #e3edec;
+    background:var(--teal-light);
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--text);
+    cursor:pointer;
+    transition:.2s;
+  }
+  .city-btn:hover{border-color:var(--teal); background:#dcecea;}
+  .city-btn svg{width:15px; height:15px; stroke:var(--teal); flex-shrink:0;}
+
+  /* --- Two column layout --- */
+  .two-col-wrap{
+    display:grid;
+    grid-template-columns:1fr 300px;
+    gap:28px;
+    align-items:start;
+  }
+  .content-col{min-width:0;}
+
+  /* --- Sidebar --- */
+  .sidebar{
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .sidebar-box{
+    background:var(--white);
+    border-radius:16px;
+    padding:18px;
+    box-shadow:0 8px 22px rgba(12,58,62,.07);
+  }
+  .sidebar-title{
+    font-size:14.5px;
+    font-weight:800;
+    color:var(--teal-dark);
+    margin-bottom:14px;
+    padding-right:10px;
+    border-right:3px solid var(--gold);
+  }
+  .announce-list{display:flex; flex-direction:column; gap:12px;}
+  .announce-list li{
+    border-bottom:1px dashed #e3edec;
+    padding-bottom:12px;
+  }
+  .announce-list li:last-child{border-bottom:none; padding-bottom:0;}
+  .announce-list .a-title{
+    font-size:13px; font-weight:700; color:var(--text); line-height:1.6; display:block; margin-bottom:4px;
+  }
+  .announce-list .a-date{font-size:11px; color:var(--muted);}
+
+  .sidebar-btn{
+    display:flex; align-items:center; gap:12px;
+    width:100%;
+    background:var(--white);
+    border:1.5px solid #e3edec;
+    border-radius:14px;
+    padding:15px 16px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    color:var(--text);
+    cursor:pointer;
+    box-shadow:0 8px 22px rgba(12,58,62,.06);
+    transition:border-color .2s, transform .15s, background .2s;
+  }
+  .sidebar-btn:hover{border-color:var(--teal); transform:translateX(-2px); background:var(--teal-light);}
+  .sidebar-btn svg{width:19px; height:19px; stroke:var(--teal); flex-shrink:0;}
+  .sidebar-btn.login-side-btn{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:var(--white);
+  }
+  .sidebar-btn.login-side-btn svg{stroke:var(--white);}
+  .sidebar-btn.login-side-btn:hover{background:var(--teal-mid);}
+
+  @media(max-width:980px){
+    .two-col-wrap{grid-template-columns:1fr;}
+  }
+
+  /* --- Ad banner (sidebar) --- */
+  .ad-banner{
+    position:relative;
+    background:linear-gradient(150deg, var(--teal-dark), var(--teal) 75%);
+    border-radius:16px;
+    padding:22px 18px 20px;
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+    overflow:hidden;
+  }
+  .ad-tag{
+    background:rgba(255,255,255,.15);
+    color:#e7f3f2;
+    font-size:10.5px; font-weight:700;
+    padding:3px 11px; border-radius:20px;
+    letter-spacing:.3px;
+  }
+  .ad-icon{
+    width:52px; height:52px; flex-shrink:0;
+    background:rgba(255,255,255,.12);
+    border-radius:14px;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ad-icon svg{width:26px; height:26px;}
+  .ad-text{width:100%;}
+  .ad-text h3{font-size:15.5px; font-weight:800; color:var(--white); margin-bottom:6px;}
+  .ad-text p{font-size:12.5px; color:#d7ece9; line-height:1.9;}
+  .ad-cta{
+    width:100%;
+    background:var(--gold);
+    color:var(--teal-dark);
+    border:none;
+    font-family:inherit;
+    font-weight:800;
+    font-size:13.5px;
+    padding:11px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .ad-cta:hover{background:var(--gold-dark);}
+
+  /* --- Section headers --- */
+  .section-block{margin-top:52px;}
+  .section-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .section-head h2{
+    font-size:19px; font-weight:800; color:var(--teal-dark);
+    padding-right:12px; border-right:4px solid var(--gold);
+  }
+  .section-head span{font-size:12.5px; color:var(--muted);}
+
+  /* --- Carousel --- */
+  .carousel{
+    display:flex;
+    gap:18px;
+    overflow-x:auto;
+    padding:6px 4px 18px;
+    scroll-snap-type:x proximity;
+    scrollbar-width:thin;
+    scrollbar-color:var(--teal) var(--teal-light);
+  }
+  .carousel::-webkit-scrollbar{height:7px;}
+  .carousel::-webkit-scrollbar-track{background:var(--teal-light); border-radius:8px;}
+  .carousel::-webkit-scrollbar-thumb{background:var(--teal); border-radius:8px;}
+
+  .venue-card{
+    flex:0 0 auto;
+    width:230px;
+    scroll-snap-align:start;
+    background:var(--white);
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 8px 22px rgba(12,58,62,.08);
+    transition:transform .2s, box-shadow .2s;
+  }
+  .venue-card:hover{transform:translateY(-4px); box-shadow:0 14px 28px rgba(12,58,62,.14);}
+  .venue-thumb{
+    height:130px;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .venue-thumb svg{width:38px; height:38px; opacity:.85;}
+  .venue-thumb .thumb-tag{
+    position:absolute; top:10px; left:10px;
+    background:rgba(255,255,255,.85);
+    color:var(--teal-dark);
+    font-size:10.5px; font-weight:700;
+    padding:3px 9px; border-radius:20px;
+  }
+  .venue-info{padding:13px 14px 16px;}
+  .venue-info h3{font-size:14px; font-weight:700; line-height:1.5; margin-bottom:6px; min-height:42px;}
+  .venue-info .venue-meta{
+    display:flex; align-items:center; gap:6px;
+    font-size:12px; color:var(--muted);
+  }
+  .venue-info .venue-meta svg{width:13px; height:13px; stroke:var(--muted);}
+
+  .hotel-card{flex:0 0 auto; width:210px; scroll-snap-align:start; background:var(--white); border-radius:16px; overflow:hidden; box-shadow:0 8px 22px rgba(12,58,62,.08); transition:transform .2s, box-shadow .2s;}
+  .hotel-card:hover{transform:translateY(-4px); box-shadow:0 14px 28px rgba(12,58,62,.14);}
+  .hotel-thumb{height:110px; display:flex; align-items:center; justify-content:center;}
+  .hotel-thumb svg{width:32px; height:32px; opacity:.85;}
+  .hotel-info{padding:12px 13px 15px;}
+  .hotel-info h3{font-size:13.5px; font-weight:700; margin-bottom:6px;}
+  .stars{display:flex; gap:2px;}
+  .stars svg{width:12px; height:12px; fill:var(--gold); stroke:none;}
+
+  /* ===== Footer ===== */
+  footer.site-footer{
+    background:var(--teal-dark);
+    color:#cfe4e2;
+    margin-top:40px;
+  }
+  .footer-inner{
+    max-width:1400px;
+    margin:0 auto;
+    padding:56px 28px 34px;
+    display:grid;
+    grid-template-columns:1fr 1fr 1.1fr;
+    gap:40px;
+  }
+  .footer-col h3{
+    color:var(--gold);
+    font-size:15px;
+    font-weight:700;
+    margin-bottom:20px;
+    padding-right:12px;
+    border-right:3px solid var(--gold);
+  }
+  .footer-col ul li{margin-bottom:14px;}
+  .footer-col ul a{
+    font-size:14px;
+    color:#cfe4e2;
+    transition:color .2s;
+  }
+  .footer-col ul a:hover{color:var(--white);}
+  .footer-brand{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:14px;
+  }
+  .footer-brand-top{display:flex; align-items:center; gap:12px;}
+  .footer-brand-top .brand-emblem{
+    width:42px; height:42px;
+    box-shadow:0 0 0 2px var(--gold);
+  }
+  .footer-brand-top span{
+    font-size:17px;
+    font-weight:800;
+    color:var(--white);
+  }
+  .footer-brand p{
+    font-size:13.5px;
+    line-height:2;
+    color:#a9c6c3;
+    max-width:340px;
+  }
+  .footer-bottom{
+    border-top:1px solid rgba(255,255,255,.12);
+    text-align:center;
+    padding:18px 20px;
+    font-size:12.5px;
+    color:#8fb0ad;
+  }
+  @media(max-width:860px){
+    .footer-inner{grid-template-columns:1fr; text-align:center;}
+    .footer-col h3{border-right:none; padding-right:0; border-top:3px solid var(--gold); padding-top:10px;}
+    .footer-brand{align-items:center;}
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-emblem">
+        <img src="logo.jpg" alt="آرم خانه کارگر">
+      </div>
+      <div class="brand-text">
+        <h1>سرا</h1>
+        <span>خانه کارگر جمهوری اسلامی ایران</span>
+      </div>
+    </div>
+
+    <nav class="main-nav" id="mainNav">
+      <ul>
+        <li><a href="#">شبکه‌های اجتماعی</a></li>
+        <li><a href="#">لیست شعب</a></li>
+        <li><a href="#" class="dropdown">شبکه تخفیف
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+        </a></li>
+        <li><a href="#">ارتباط با ما</a></li>
+        <li><a href="#">درباره ما</a></li>
+        <li><a href="#">صفحه نخست</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-actions">
+      <button class="login-btn">ورود</button>
+      <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="two-col-wrap">
+
+  <div class="content-col">
+    <!-- ===== Search bar ===== -->
+    <div class="search-bar">
+      <div class="search-card" id="destCard" onclick="openCityModal('dest')">
+        <div class="sc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        </div>
+        <div class="sc-text">
+          <span class="sc-label">مهمان‌سراها یا شهر مقصد</span>
+          <span class="sc-value" id="destValue">انتخاب کنید</span>
+        </div>
+      </div>
+
+      <div class="search-card date-card">
+        <div class="sc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+        </div>
+        <div class="sc-text">
+          <span class="sc-label">تاریخ ورود</span>
+          <span class="sc-value">۱۴۰۵/۰۵/۰۴</span>
+        </div>
+      </div>
+
+      <div class="search-card submit-card" onclick="openCityModal('dest')">
+        <div class="sc-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        </div>
+        <div class="sc-text">
+          <span class="sc-value">جستجو</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== مهمان‌سراهای خانه کارگر ===== -->
+    <div class="section-block">
+      <div class="section-head">
+        <h2>مهمان‌سراهای خانه کارگر</h2>
+        <span>برای مشاهده‌ی بیشتر به چپ بکشید</span>
+      </div>
+      <div class="carousel" id="venueCarousel"></div>
+    </div>
+
+    <!-- ===== هتل‌های طرف قرارداد ===== -->
+    <div class="section-block">
+      <div class="section-head">
+        <h2>هتل‌های طرف قرارداد</h2>
+        <span>برای مشاهده‌ی بیشتر به چپ بکشید</span>
+      </div>
+      <div class="carousel" id="hotelCarousel"></div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-box announce-box">
+      <h3 class="sidebar-title">اطلاعیه‌ها</h3>
+      <ul class="announce-list" id="announceList"></ul>
+    </div>
+
+    <button class="sidebar-btn login-side-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+      <span>ورود</span>
+    </button>
+
+    <button class="sidebar-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="13" width="12" height="8"/><path d="M6 17H4a2 2 0 01-2-2v-4a2 2 0 012-2h16a2 2 0 012 2v4a2 2 0 01-2 2h-2"/></svg>
+      <span>پرینت معرفی‌نامه</span>
+    </button>
+
+    <button class="sidebar-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
+      <span>لغو رزرو</span>
+    </button>
+
+    <button class="sidebar-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 015 .5c0 1.5-2.2 2-2.5 3.5"/><path d="M12 17h.01"/></svg>
+      <span>راهنمای رزرو</span>
+    </button>
+
+    <div class="ad-banner">
+      <span class="ad-tag">تبلیغات</span>
+      <div class="ad-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>
+      </div>
+      <div class="ad-text">
+        <h3>استراحتگاه سرعین</h3>
+        <p>اقامتی آرام در دل چشمه‌های آب‌گرم؛ رزرو زودهنگام برای فصل تابستان از هم‌اکنون ممکن است.</p>
+      </div>
+      <button class="ad-cta">مشاهده و رزرو</button>
+    </div>
+  </aside>
+
+</div>
+
+</main>
+
+<!-- ===== City picker modal ===== -->
+<div class="modal-overlay" id="cityModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>انتخاب مهمان‌سرا یا شهر مقصد</h2>
+      <button class="modal-close" onclick="closeCityModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="city-grid" id="cityGrid"></div>
+  </div>
+</div>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="footer-brand-top">
+        <div class="brand-emblem">
+          <img src="logo.jpg" alt="آرم خانه کارگر">
+        </div>
+        <span>سامانه سرا خانه کارگر</span>
+      </div>
+      <p>پورتال رزرو استراحتگاه‌های خانه کارگر جمهوری اسلامی ایران</p>
+    </div>
+    <div class="footer-col">
+      <h3>دسترسی سریع</h3>
+      <ul>
+        <li><a href="#">صفحه نخست</a></li>
+        <li><a href="#">سامانه سرا</a></li>
+        <li><a href="#">اخبار</a></li>
+        <li><a href="#">ورود اعضا</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h3>سامانه‌های مرتبط</h3>
+      <ul>
+        <li><a href="#">سامانه سما</a></li>
+        <li><a href="#">سامانه سدا</a></li>
+        <li><a href="#">سامانه تعاونی</a></li>
+        <li><a href="#">شبکه تخفیف</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    تمامی حقوق این سامانه متعلق به خانه کارگر جمهوری اسلامی ایران است.
+  </div>
+</footer>
+
+<script>
+  const toggle = document.getElementById('navToggle');
+  const nav = document.getElementById('mainNav');
+  toggle.addEventListener('click', () => nav.classList.toggle('open'));
+
+  /* ---------- data ---------- */
+  const cities = ["مشهد","چمخاله","اصفهان","شیراز","سرعین","تبریز","قشم","یزد","گرگان","اردبیل"];
+
+  const thumbPalette = [
+    "linear-gradient(135deg,#127079,#0c3a3e)",
+    "linear-gradient(135deg,#dcb35c,#a9793a)",
+    "linear-gradient(135deg,#1a8f8f,#0c3a3e)",
+    "linear-gradient(135deg,#2f8f83,#12484d)",
+    "linear-gradient(135deg,#c99f45,#7d5e26)",
+    "linear-gradient(135deg,#0f6169,#0c3a3e)"
+  ];
+
+  const buildingIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>`;
+  const hotelIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01M9 13h.01M15 13h.01"/></svg>`;
+  const pinIcon = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-6.5 7-12a7 7 0 10-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2"/></svg>`;
+  const starIcon = `<svg viewBox="0 0 24 24"><path d="M12 2l3.1 6.3 6.9 1-5 4.9 1.2 6.9-6.2-3.3-6.2 3.3 1.2-6.9-5-4.9 6.9-1z"/></svg>`;
+
+  const venues = [
+    {name:"استراحتگاه اردبیل", city:"اردبیل"},
+    {name:"استراحتگاه پردیس مشهد", city:"مشهد"},
+    {name:"استراحتگاه یزد", city:"یزد"},
+    {name:"استراحتگاه اصفهان", city:"اصفهان"},
+    {name:"استراحتگاه پرند", city:"پرند"},
+    {name:"خانه کارگر تبریز", city:"تبریز"},
+    {name:"زائرسرا مشهد", city:"مشهد"},
+    {name:"شهید فاضل سرعین", city:"سرعین"},
+    {name:"استراحتگاه قشم", city:"قشم"},
+    {name:"استراحتگاه گرگان", city:"گرگان"},
+    {name:"مجتمع شهید امامی چمخاله (ردیف‌های خزر)", city:"چمخاله"},
+    {name:"مجتمع شهید امامی چمخاله (ردیف‌های یاس، شن‌بق و شقایق)", city:"چمخاله"},
+    {name:"کارا سرعین", city:"سرعین"}
+  ];
+
+  const hotels = [
+    {name:"هتل ستاره شرق", city:"مشهد", stars:4},
+    {name:"هتل بزرگ اصفهان", city:"اصفهان", stars:5},
+    {name:"هتل ساحلی مروارید", city:"چمخاله", stars:3},
+    {name:"هتل کوثر", city:"شیراز", stars:4},
+    {name:"هتل الماس آبی", city:"تبریز", stars:4},
+    {name:"هتل درّ نگین", city:"قشم", stars:5}
+  ];
+
+  const announcements = [
+    {title:"ثبت‌نام مهمان‌سراهای تابستانی از ۱۵ مرداد آغاز می‌شود", date:"۱۴۰۵/۰۴/۱۰"},
+    {title:"تعطیلی موقت استراحتگاه چمخاله جهت بازسازی", date:"۱۴۰۵/۰۴/۰۲"},
+    {title:"افزایش ظرفیت مهمان‌سرای مشهد در فصل زیارتی", date:"۱۴۰۵/۰۳/۲۵"},
+    {title:"تمدید مهلت استفاده از کارت عضویت تا پایان سال", date:"۱۴۰۵/۰۳/۱۵"}
+  ];
+
+  /* ---------- render announcements ---------- */
+  const announceList = document.getElementById('announceList');
+  announcements.forEach(a => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
+    announceList.appendChild(li);
+  });
+
+  /* ---------- render venues ---------- */
+  const venueCarousel = document.getElementById('venueCarousel');
+  venues.forEach((v, i) => {
+    const el = document.createElement('div');
+    el.className = 'venue-card';
+    el.innerHTML = `
+      <div class="venue-thumb" style="background:${thumbPalette[i % thumbPalette.length]}">
+        ${buildingIcon}
+        <span class="thumb-tag">تصویر بزودی</span>
+      </div>
+      <div class="venue-info">
+        <h3>${v.name}</h3>
+        <div class="venue-meta">${pinIcon.replace('stroke-width="2"','stroke="#5c7376" stroke-width="2"')} ${v.city}</div>
+      </div>`;
+    venueCarousel.appendChild(el);
+  });
+
+  /* ---------- render hotels ---------- */
+  const hotelCarousel = document.getElementById('hotelCarousel');
+  hotels.forEach((h, i) => {
+    const starsHtml = Array.from({length:h.stars}).map(() => starIcon).join('');
+    const el = document.createElement('div');
+    el.className = 'hotel-card';
+    el.innerHTML = `
+      <div class="hotel-thumb" style="background:${thumbPalette[(i+2) % thumbPalette.length]}">
+        ${hotelIcon}
+      </div>
+      <div class="hotel-info">
+        <h3>${h.name}</h3>
+        <div class="venue-meta" style="margin-bottom:6px">${pinIcon.replace('stroke-width="2"','stroke="#5c7376" stroke-width="2"')} ${h.city}</div>
+        <div class="stars">${starsHtml}</div>
+      </div>`;
+    hotelCarousel.appendChild(el);
+  });
+
+  /* ---------- city modal ---------- */
+  const cityModal = document.getElementById('cityModal');
+  const cityGrid = document.getElementById('cityGrid');
+  cities.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'city-btn';
+    btn.type = 'button';
+    btn.innerHTML = `${pinIcon} <span>${c}</span>`;
+    btn.addEventListener('click', () => selectCity(c));
+    cityGrid.appendChild(btn);
+  });
+
+  function openCityModal(){
+    cityModal.classList.add('open');
+  }
+  function closeCityModal(){
+    cityModal.classList.remove('open');
+  }
+  function selectCity(c){
+    document.getElementById('destValue').textContent = c;
+    closeCityModal();
+  }
+  cityModal.addEventListener('click', (e) => {
+    if(e.target === cityModal) closeCityModal();
+  });
+</script>
+
+</body>
+</html>
