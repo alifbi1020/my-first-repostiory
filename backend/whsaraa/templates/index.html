@@ -105,6 +105,37 @@
 
   .header-actions{display:flex; align-items:center; gap:22px;}
 
+  .profile-chip{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:30px;
+    padding:6px 8px 6px 16px;
+  }
+  .profile-avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .profile-avatar svg{width:17px; height:17px; stroke:var(--teal-dark);}
+  .profile-chip .profile-name{
+    color:var(--white);
+    font-size:13.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .profile-chip .dashboard-link{
+    color:var(--gold);
+    font-size:12.5px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,.25);
+    padding-right:10px;
+    white-space:nowrap;
+  }
+  .profile-chip .dashboard-link:hover{text-decoration:underline;}
+
   /* mobile nav toggle */
   .nav-toggle{display:none; background:none; border:none; cursor:pointer;}
   .nav-toggle svg{width:26px; height:26px; stroke:var(--white);}
@@ -165,6 +196,47 @@
   .hero-search .search-card .sc-value{font-size:16.5px;}
   .hero-search .search-card.submit-card{
     box-shadow:0 6px 18px rgba(220,179,92,.4);
+  }
+
+  .vacancy-link{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:9px;
+    margin:20px auto 0;
+    background:var(--white);
+    border:2px solid var(--gold);
+    border-radius:30px;
+    font-family:inherit;
+    font-size:14.5px;
+    font-weight:800;
+    color:var(--teal-dark);
+    cursor:pointer;
+    padding:12px 26px;
+    box-shadow:0 8px 20px rgba(0,0,0,.18);
+    transition:transform .18s, box-shadow .18s, background .18s;
+    animation:pulseGlow 2.4s ease-in-out infinite;
+  }
+  .vacancy-link:hover{
+    background:var(--gold);
+    transform:translateY(-2px);
+    box-shadow:0 12px 26px rgba(0,0,0,.22);
+  }
+  .vacancy-link .vl-icon{
+    width:26px; height:26px;
+    border-radius:50%;
+    background:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    transition:background .18s;
+  }
+  .vacancy-link:hover .vl-icon{background:var(--teal-dark);}
+  .vacancy-link svg{width:14px; height:14px; stroke:var(--teal-dark); flex-shrink:0;}
+  .vacancy-link:hover svg{stroke:var(--white);}
+
+  @keyframes pulseGlow{
+    0%,100%{box-shadow:0 8px 20px rgba(220,179,92,.25);}
+    50%{box-shadow:0 8px 26px rgba(220,179,92,.6);}
   }
 
   .date-input{
@@ -368,12 +440,78 @@
   .announce-list li{
     border-bottom:1px dashed #e3edec;
     padding-bottom:12px;
+    cursor:pointer;
+    transition:opacity .15s;
   }
+  .announce-list li:hover{opacity:.75;}
   .announce-list li:last-child{border-bottom:none; padding-bottom:0;}
   .announce-list .a-title{
     font-size:13px; font-weight:700; color:var(--text); line-height:1.6; display:block; margin-bottom:4px;
   }
   .announce-list .a-date{font-size:11px; color:var(--muted);}
+
+  /* --- Announcement detail modal --- */
+  .announce-modal-box{max-width:560px;}
+  .am-badge{
+    display:inline-block;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--teal-dark);
+    margin-bottom:14px;
+  }
+  .am-body{
+    font-size:14px;
+    line-height:2.1;
+    color:var(--text);
+    margin-bottom:16px;
+  }
+  .am-link{
+    display:none;
+    background:var(--teal-light);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:16px;
+  }
+  .am-link-label{font-size:12.5px; color:var(--muted); margin-bottom:6px; line-height:1.9;}
+  .am-link-url{font-size:12.5px; color:var(--teal); font-weight:700; word-break:break-all;}
+  .am-meta{
+    display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:8px;
+    padding-top:14px;
+    border-top:1px dashed #e3edec;
+    margin-bottom:18px;
+  }
+  .am-date{font-size:12px; font-weight:600; color:#c0392b;}
+  .am-views{font-size:12px; font-weight:600; color:#1a8f4a;}
+  .am-social{display:flex; gap:10px; margin-bottom:16px;}
+  .am-social-btn{
+    display:flex; align-items:center; gap:7px;
+    border:none;
+    border-radius:9px;
+    padding:9px 16px;
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--white);
+    cursor:pointer;
+  }
+  .am-social-btn svg{width:15px; height:15px; stroke:var(--white);}
+  .am-telegram{background:#2b95d6;}
+  .am-whatsapp{background:#25a35a;}
+  .am-close-btn{
+    width:100%;
+    background:var(--teal-light);
+    color:var(--teal-dark);
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:13.5px;
+    padding:12px;
+    border-radius:10px;
+    cursor:pointer;
+    transition:background .2s;
+  }
+  .am-close-btn:hover{background:#dcecea;}
 
   .sidebar-btn{
     display:flex; align-items:center; gap:12px;
@@ -399,6 +537,38 @@
   }
   .sidebar-btn.login-side-btn svg{stroke:var(--white);}
   .sidebar-btn.login-side-btn:hover{background:var(--teal-mid);}
+
+  .profile-box{
+    background:var(--teal-dark);
+    padding:18px;
+  }
+  .profile-box-top{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:16px;
+  }
+  .profile-box .profile-avatar{
+    width:42px; height:42px;
+  }
+  .profile-box .profile-avatar svg{width:22px; height:22px;}
+  .profile-box .profile-name{
+    color:var(--white);
+    font-size:14px;
+    font-weight:700;
+    line-height:1.6;
+  }
+  .dashboard-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:var(--gold);
+    color:var(--teal-dark);
+    font-weight:800;
+    font-size:13.5px;
+    padding:11px;
+    border-radius:10px;
+    transition:background .2s;
+  }
+  .dashboard-btn:hover{background:var(--gold-dark);}
 
   @media(max-width:980px){
     .two-col-wrap{grid-template-columns:1fr;}
@@ -635,12 +805,19 @@
         </a></li>
         <li><a href="#">ارتباط با ما</a></li>
         <li><a href="#">درباره ما</a></li>
-        <li><a href="#">صفحه نخست</a></li>
+        <li><a href="index.html">صفحه نخست</a></li>
       </ul>
     </nav>
 
     <div class="header-actions">
-      <button class="login-btn">ورود</button>
+      <button class="login-btn" id="loginBtnHeader" onclick="location.href='login.html'">ورود</button>
+      <div class="profile-chip" id="profileChipHeader" style="display:none">
+        <div class="profile-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
+        </div>
+        <span class="profile-name" id="profileNameHeader"></span>
+        <a href="dashboard.html" class="dashboard-link">داشبورد</a>
+      </div>
       <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
@@ -687,6 +864,13 @@
           </div>
         </div>
       </div>
+
+      <button class="vacancy-link" onclick="handleVacancySearch()">
+        <span class="vl-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <span>مشاهده ظرفیت‌های خالی</span>
+      </button>
     </div>
 
     <!-- ===== مهمان‌سراهای خانه کارگر ===== -->
@@ -714,10 +898,20 @@
       <ul class="announce-list" id="announceList"></ul>
     </div>
 
-    <button class="sidebar-btn login-side-btn">
+    <button class="sidebar-btn login-side-btn" id="loginBtnSidebar" onclick="location.href='login.html'">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
       <span>ورود</span>
     </button>
+
+    <div class="sidebar-box profile-box" id="profileBoxSidebar" style="display:none">
+      <div class="profile-box-top">
+        <div class="profile-avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
+        </div>
+        <span class="profile-name" id="profileNameSidebar"></span>
+      </div>
+      <a href="dashboard.html" class="dashboard-btn">داشبورد</a>
+    </div>
 
     <button class="sidebar-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="13" width="12" height="8"/><path d="M6 17H4a2 2 0 01-2-2v-4a2 2 0 012-2h16a2 2 0 012 2v4a2 2 0 01-2 2h-2"/></svg>
@@ -787,6 +981,39 @@
   </div>
 </div>
 
+<!-- ===== Announcement detail modal ===== -->
+<div class="modal-overlay" id="announceModal">
+  <div class="modal-box announce-modal-box">
+    <div class="modal-head">
+      <h2 id="announceModalTitle"></h2>
+      <button class="modal-close" onclick="closeAnnounceModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <span class="am-badge">📢 اطلاعیه</span>
+    <p class="am-body" id="announceModalBody"></p>
+    <div class="am-link" id="announceModalLink">
+      <p class="am-link-label"></p>
+      <p class="am-link-url"></p>
+    </div>
+    <div class="am-meta">
+      <span class="am-date" id="announceModalDate"></span>
+      <span class="am-views" id="announceModalViews"></span>
+    </div>
+    <div class="am-social">
+      <button class="am-social-btn am-telegram" onclick="showToast('لینک کانال تلگرام به‌زودی فعال می‌شود')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+        تلگرام
+      </button>
+      <button class="am-social-btn am-whatsapp" onclick="showToast('لینک واتس‌آپ به‌زودی فعال می‌شود')">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.5 8.5 0 01-12.4 7.5L3 20l1.1-5.4A8.5 8.5 0 1121 11.5z"/></svg>
+        واتس‌آپ
+      </button>
+    </div>
+    <button class="am-close-btn" onclick="closeAnnounceModal()">بستن</button>
+  </div>
+</div>
+
 <footer class="site-footer">
   <div class="footer-inner">
     <div class="footer-brand">
@@ -801,7 +1028,7 @@
     <div class="footer-col">
       <h3>دسترسی سریع</h3>
       <ul>
-        <li><a href="#">صفحه نخست</a></li>
+        <li><a href="index.html">صفحه نخست</a></li>
         <li><a href="#">سامانه سرا</a></li>
         <li><a href="#">اخبار</a></li>
         <li><a href="#">ورود اعضا</a></li>
@@ -846,8 +1073,24 @@
   document.getElementById('headerLogoImg').src = IMG.logo;
   document.getElementById('footerLogoImg').src = IMG.logo;
 
+  /* ---------- login state (temporary, no backend yet) ---------- */
+  (function initLoginState(){
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('loggedin') !== '1') return;
+
+    const userName = 'علیرضا توسطی تکان‌تپه';
+
+    document.getElementById('loginBtnHeader').style.display = 'none';
+    document.getElementById('profileChipHeader').style.display = 'flex';
+    document.getElementById('profileNameHeader').textContent = userName;
+
+    document.getElementById('loginBtnSidebar').style.display = 'none';
+    document.getElementById('profileBoxSidebar').style.display = 'block';
+    document.getElementById('profileNameSidebar').textContent = userName;
+  })();
+
   /* ---------- data ---------- */
-  const cities = ["مشهد","چمخاله","اصفهان","شیراز","سرعین","تبریز","قشم","یزد","گرگان","اردبیل"];
+  const cities = [{% for city in cities %}"{{ city.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
 
   const thumbPalette = [
     "linear-gradient(135deg,#127079,#0c3a3e)",
@@ -889,19 +1132,69 @@
   ];
 
   const announcements = [
-    {title:"ثبت‌نام مهمان‌سراهای تابستانی از ۱۵ مرداد آغاز می‌شود", date:"۱۴۰۵/۰۴/۱۰"},
-    {title:"تعطیلی موقت استراحتگاه چمخاله جهت بازسازی", date:"۱۴۰۵/۰۴/۰۲"},
-    {title:"افزایش ظرفیت مهمان‌سرای مشهد در فصل زیارتی", date:"۱۴۰۵/۰۳/۲۵"},
-    {title:"تمدید مهلت استفاده از کارت عضویت تا پایان سال", date:"۱۴۰۵/۰۳/۱۵"}
+    {
+      title:"ثبت‌نام مهمان‌سراهای تابستانی از ۱۵ مرداد آغاز می‌شود",
+      date:"۱۴۰۵/۰۴/۱۰",
+      fullDate:"چهارشنبه ۱۰ تیر ۱۴۰۵ ساعت: ۱۰:۰۰",
+      views:"۵۱۲",
+      body:"به اطلاع اعضای محترم خانه کارگر می‌رساند، ثبت‌نام رزرو مهمان‌سراهای تابستانی از تاریخ ۱۵ مرداد آغاز می‌شود. با توجه به محدودیت ظرفیت، پیشنهاد می‌شود اعضای محترم پیش از تکمیل ظرفیت نسبت به ثبت رزرو خود از طریق همین سامانه اقدام نمایند.",
+      link:{label:"جهت مشاهده‌ی جدول ظرفیت مهمان‌سراها به لینک زیر مراجعه فرمایید:", url:"#"}
+    },
+    {
+      title:"تعطیلی موقت استراحتگاه چمخاله جهت بازسازی",
+      date:"۱۴۰۵/۰۴/۰۲",
+      fullDate:"سه‌شنبه ۲ تیر ۱۴۰۵ ساعت: ۱۶:۲۵",
+      views:"۷۳۲۹",
+      body:"به اطلاع میهمانان گرامی مجتمع استراحتگاه شهید امامی (چمخاله) می‌رساند، این مجموعه از تاریخ فوق به‌مدت محدود جهت انجام عملیات بازسازی و نوسازی واحدهای اقامتی تعطیل خواهد بود. رزروهای ثبت‌شده در این بازه به‌صورت خودکار لغو و مبلغ پرداختی به کیف‌پول کاربر بازگردانده می‌شود."
+    },
+    {
+      title:"افزایش ظرفیت مهمان‌سرای مشهد در فصل زیارتی",
+      date:"۱۴۰۵/۰۳/۲۵",
+      fullDate:"دوشنبه ۲۵ خرداد ۱۴۰۵ ساعت: ۰۹:۱۵",
+      views:"۱٬۲۴۰",
+      body:"با توجه به افزایش تقاضای زیارتی در ماه‌های پیش‌رو، ظرفیت پذیرش زائرسرا و استراحتگاه پردیس مشهد افزایش یافته است. اعضای محترم می‌توانند برای بازه‌های زمانی جدید نیز از طریق بخش «مشاهده ظرفیت‌های خالی» اقدام به رزرو نمایند."
+    },
+    {
+      title:"تمدید مهلت استفاده از کارت عضویت تا پایان سال",
+      date:"۱۴۰۵/۰۳/۱۵",
+      fullDate:"جمعه ۱۵ خرداد ۱۴۰۵ ساعت: ۱۲:۴۰",
+      views:"۳۴۸",
+      body:"مهلت استفاده از تخفیفات ویژه‌ی کارت عضویت خانه کارگر که قرار بود در پایان فصل بهار منقضی شود، تا پایان سال جاری تمدید گردید. اعضای محترم می‌توانند همچنان از تخفیفات مهمان‌سراها و هتل‌های طرف قرارداد بهره‌مند شوند."
+    }
   ];
 
   /* ---------- render announcements ---------- */
   const announceList = document.getElementById('announceList');
-  announcements.forEach(a => {
+  announcements.forEach((a, i) => {
     const li = document.createElement('li');
+    li.className = 'announce-item';
     li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
+    li.addEventListener('click', () => openAnnounceModal(i));
     announceList.appendChild(li);
   });
+
+  /* ---------- announcement detail modal ---------- */
+  const announceModal = document.getElementById('announceModal');
+  function openAnnounceModal(i){
+    const a = announcements[i];
+    document.getElementById('announceModalTitle').textContent = a.title;
+    document.getElementById('announceModalBody').textContent = a.body;
+    document.getElementById('announceModalDate').textContent = a.fullDate;
+    document.getElementById('announceModalViews').textContent = `تعداد بازدید: ${a.views}`;
+
+    const linkBox = document.getElementById('announceModalLink');
+    if(a.link){
+      linkBox.style.display = 'block';
+      linkBox.querySelector('.am-link-label').textContent = a.link.label;
+      linkBox.querySelector('.am-link-url').textContent = a.link.url;
+    } else {
+      linkBox.style.display = 'none';
+    }
+
+    announceModal.classList.add('open');
+  }
+  function closeAnnounceModal(){ announceModal.classList.remove('open'); }
+  announceModal.addEventListener('click', (e) => { if(e.target === announceModal) closeAnnounceModal(); });
 
   /* ---------- render venues ---------- */
   const venueCarousel = document.getElementById('venueCarousel');
@@ -1046,13 +1339,28 @@
 
   /* ---------- search button ---------- */
   function handleSearch(){
-    if(!selectedCity){
-      openCityModal();
-      return;
-    }
-    const dateText = selectedDate ? document.getElementById('dateValue').textContent : '—';
-    showToast(`به‌زودی: انتقال به نتایج «${selectedCity}» — تاریخ ورود ${dateText}`);
+  if(!selectedCity){ openCityModal(); return; }
+  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
+  if(selectedDate){
+    const jy = selectedDate.jy;
+    const jm = String(selectedDate.jm).padStart(2, '0');
+    const jd = String(selectedDate.jd).padStart(2, '0');
+    url += `&date=${jy}-${jm}-${jd}`;
   }
+  window.location.href = url;
+}
+
+function handleVacancySearch(){
+  if(!selectedCity){ openCityModal(); return; }
+  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
+  if(selectedDate){
+    const jy = selectedDate.jy;
+    const jm = String(selectedDate.jm).padStart(2, '0');
+    const jd = String(selectedDate.jd).padStart(2, '0');
+    url += `&date=${jy}-${jm}-${jd}`;
+  }
+  window.location.href = url;
+}
 
   function showToast(msg){
     let toast = document.getElementById('appToast');
