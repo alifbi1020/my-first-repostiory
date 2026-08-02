@@ -1,13 +1,18 @@
 from django.contrib import admin
-from .models import city, Venue, RoomUnit, Availability
+from .models import city, Venue, RoomUnit, Availability, CitySlide
 
 class AvailabilityInline(admin.TabularInline):
     model = Availability
     extra = 1
+class CitySlideInline(admin.TabularInline):
+    model = CitySlide
+    extra = 1
+
 
 @admin.register(city)
 class CityAdmin(admin.ModelAdmin):
     list_display = ('name',)
+    inlines = [CitySlideInline]
 class RoomUnitInline(admin.TabularInline):
     model = RoomUnit
     extra = 1

@@ -29,6 +29,7 @@ class RoomUnit(models.Model):
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='units', verbose_name="مهمان سرا")
     unit_type = models.CharField(max_length=100, verbose_name="نوع واحد")
     room_type = models.CharField(max_length=100, blank=True, verbose_name="نوع استراحتگاه")
+    cover_image = models.ImageField(upload_to='room_units/', blank=True, null=True, verbose_name="تصویر واحد")
 
     status = models.CharField(
         max_length=20,
@@ -59,3 +60,15 @@ class Availability(models.Model):
         unique_together = ('room_unit', 'date')
         verbose_name = "ظرفیت روزانه"
         verbose_name_plural = "ظرفیت‌های روزانه"
+class CitySlide(models.Model):
+    city = models.ForeignKey(city, on_delete=models.CASCADE, related_name='slides', verbose_name='شهر' )
+    image = models.ImageField(upload_to='city_slides/', verbose_name='تصویر')
+    caption = models.CharField(max_length=150, blank=True, verbose_name="یه توضیح کوتاه")
+    order = models.PositiveBigIntegerField(default=0, verbose_name="ترتیب نمایش")
+
+    def __str__(self):
+        return f"اسلاید {self.city.name} - {self.caption or self.id}"
+    class Meta:
+        ordering = ['order']
+        verbose_name = "اسلاید شهر"
+        verbose_name_plural = "اسلایدهای شهر" 

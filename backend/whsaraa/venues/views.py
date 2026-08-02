@@ -1,7 +1,8 @@
 import jdatetime
 from datetime import date as date_cls, timedelta
 from django.shortcuts import render
-from .models import Venue, city
+from .models import Venue, city, RoomUnit
+from django.http import JsonResponse
 
 FA_DIGITS = str.maketrans('0123456789', '۰۱۲۳۴۵۶۷۸۹')
 JALALI_MONTHS = ["فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
@@ -34,6 +35,27 @@ def dashboard(request):
     cities = city.objects.all().order_by('name')
     return render(request, 'dashboard.html', {'cities': cities})
 
+def vacancy_list(request):
+    date_str = request.GET.get('date', '')
+    try:
+        selected_date = jalali_str_to_gregorian(date_str) if date_str else date_cls.today()
+    except (ValueError, TypeError):
+        selected_date = date_cls.today()
+    units = RoomUnit.objects.filter(
+        availabilities__date=selected_date,
+        availabilities__status='available',
+        venue__is_active=True
+    ).select_related('venue', 'venue__city')
+
+    data = [
+        {
+            "city": u.venue.city.name,
+            "venue": u.venue.name,
+            "unitType": u.unit_type,
+        }
+        for u in units
+    ]
+    return JsonResponse({"results": data})
 
 def city_results(request):
     city_name = request.GET.get('city', '')
@@ -45,6 +67,9 @@ def city_results(request):
         selected_date = date_cls.today()
 
     venues = Venue.objects.filter(city__name=city_name, is_active=True).prefetch_related('units')
+
+    city_obj = city.objects.filter(name=city_name).first()
+    slides = city_obj.slides.all() if city_obj else []
 
     for venue in venues:
         for unit in venue.units.all():
@@ -59,6 +84,7 @@ def city_results(request):
     context = {
         'city_name': city_name,
         'venues': venues,
+        'slides': slides,
         'selected_date_fa': to_jalali_display(selected_date),
         'prev_date_param': gregorian_to_jalali_param(selected_date - timedelta(days=1)),
         'next_date_param': gregorian_to_jalali_param(selected_date + timedelta(days=1)),

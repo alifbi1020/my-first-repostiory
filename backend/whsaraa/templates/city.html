@@ -157,6 +157,12 @@
     transition:opacity .6s ease;
     padding:26px;
   }
+  .slide-img{
+    position:absolute; inset:0;
+    width:100%; height:100%;
+    object-fit:cover;
+    z-index:0;
+  }
   .slide.active{opacity:1;}
   .slide-caption{
     position:relative;
@@ -285,84 +291,70 @@
     font-size:13.5px;
   }
 
-  /* --- Venue groups & unit cards --- */
+/* --- Unit cards (image per unit) --- */
   .venue-group{margin-bottom:34px;}
   .venue-group:last-child{margin-bottom:0;}
-  .venue-group-title{
-    font-size:15.5px;
-    font-weight:800;
-    color:var(--teal-dark);
-    margin-bottom:16px;
-    padding-right:10px;
-    border-right:3px solid var(--gold);
-  }
-  .units-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
-    gap:18px;
-  }
-  .unit-card{
-    position:relative;
-    background:var(--white);
-    border-radius:20px;
-    padding:20px 18px;
-    box-shadow:0 8px 22px rgba(12,58,62,.08);
+
+  .unit-card-row{
     display:flex;
-    flex-direction:column;
-    gap:10px;
+    align-items:stretch;
+    background:var(--white);
+    border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 8px 22px rgba(12,58,62,.08);
+    margin-bottom:16px;
   }
-  .unit-status-badge{
-    position:absolute;
-    top:16px; left:16px;
-    font-size:10.5px;
-    font-weight:700;
-    padding:4px 10px;
-    border-radius:20px;
-  }
-  .unit-status-badge.status-undefined{background:#e7eaea; color:#697777;}
-  .unit-status-badge.status-available{background:#dcf3e6; color:#1a8f4a;}
-  .unit-status-badge.status-full{background:#fbe1de; color:#c0392b;}
+  .unit-card-row:last-child{margin-bottom:0;}
 
-  .unit-title{
-    font-size:15px;
-    font-weight:800;
-    color:var(--text);
-    padding-left:70px;
+  .unit-card-image{flex:0 0 240px; min-height:150px; background:var(--teal-light);}
+  .unit-card-image img{width:100%; height:100%; object-fit:cover; display:block;}
+  .unit-card-image-placeholder{
+    width:100%; height:100%;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(135deg, var(--teal), var(--teal-dark));
   }
-  .unit-subtitle{
-    font-size:12px;
-    color:var(--muted);
-    margin-top:-6px;
-  }
-  .unit-price{
-    font-size:14px;
-    font-weight:700;
-    color:var(--teal);
-    margin-top:4px;
-  }
-  .unit-price span{font-size:11px; font-weight:500; color:var(--muted);}
+  .unit-card-image-placeholder svg{width:32px; height:32px; opacity:.7;}
 
-  .unit-book-btn{
-    margin-top:6px;
-    width:100%;
-    border:none;
-    border-radius:10px;
-    padding:11px;
-    font-family:inherit;
-    font-size:13.5px;
-    font-weight:700;
-    cursor:pointer;
+  .unit-card-info{
+    flex:1; min-width:0; padding:18px 20px;
+    display:flex; flex-direction:column; gap:8px; justify-content:center;
+  }
+  .unit-card-type{font-size:15px; font-weight:800; color:var(--text);}
+  .unit-card-subtype{font-size:12.5px; color:var(--muted);}
+  .unit-card-status{
+    display:inline-block; width:fit-content;
+    font-size:10.5px; font-weight:700;
+    padding:3px 10px; border-radius:20px;
+  }
+  .unit-card-status.status-undefined{background:#e7eaea; color:#697777;}
+  .unit-card-status.status-available{background:#dcf3e6; color:#1a8f4a;}
+  .unit-card-status.status-full{background:#fbe1de; color:#c0392b;}
+
+  .unit-card-booking{
+    flex:0 0 200px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+    padding:18px 16px;
+    border-right:1px dashed #e3edec;
+  }
+  .unit-card-price{font-size:15px; font-weight:800; color:var(--teal); text-align:center;}
+  .unit-card-price span{display:block; font-size:11px; font-weight:500; color:var(--muted);}
+  .unit-card-btn{
+    width:100%; border:none; border-radius:10px; padding:11px;
+    font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;
     transition:background .2s;
   }
-  .unit-book-btn.enabled{
-    background:var(--teal);
-    color:var(--white);
-  }
-  .unit-book-btn.enabled:hover{background:var(--teal-mid);}
-  .unit-book-btn.disabled{
-    background:#eef2f2;
-    color:#a7b4b4;
-    cursor:not-allowed;
+  .unit-card-btn.enabled{background:var(--teal); color:var(--white);}
+  .unit-card-btn.enabled:hover{background:var(--teal-mid);}
+  .unit-card-btn.disabled{background:#eef2f2; color:#a7b4b4; cursor:not-allowed;}
+
+  @media(max-width:700px){
+    .unit-card-row{flex-direction:column;}
+    .unit-card-image{flex:0 0 auto; width:100%; height:160px;}
+    .unit-card-booking{
+      flex:0 0 auto; width:100%;
+      border-right:none; border-top:1px dashed #e3edec;
+      flex-direction:row; justify-content:space-between;
+    }
   }
 
   /* --- Modal (announcement detail, reused) --- */
@@ -532,22 +524,36 @@
     {% for venue in venues %}
 <div class="venue-group">
   <h3 class="venue-group-title">{{ venue.name }}</h3>
-  <div class="units-grid">
-    {% for unit in venue.units.all %}
-    <div class="unit-card">
-      <span class="unit-status-badge status-{{ unit.date_status }}">{{ unit.date_status_label }}</span>
-      <span class="unit-title">{{ unit.unit_type }}</span>
-      {% if unit.room_type %}<span class="unit-subtitle">{{ unit.room_type }}</span>{% endif %}
-      <span class="unit-price">{{ unit.price_per_night|intcomma }} <span>ریال / شب</span></span>
+
+  {% for unit in venue.units.all %}
+  <div class="unit-card-row">
+    <div class="unit-card-image">
+      {% if unit.cover_image %}
+        <img src="{{ unit.cover_image.url }}" alt="{{ unit.unit_type }}">
+      {% else %}
+        <div class="unit-card-image-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="unit-card-info">
+      <span class="unit-card-type">{{ unit.unit_type }}</span>
+      {% if unit.room_type %}<span class="unit-card-subtype">{{ unit.room_type }}</span>{% endif %}
+      <span class="unit-card-status status-{{ unit.date_status }}">{{ unit.date_status_label }}</span>
+    </div>
+
+    <div class="unit-card-booking">
+      <span class="unit-card-price">{{ unit.price_per_night|intcomma }}<span>ریال / شب</span></span>
       <button
-        class="unit-book-btn {% if unit.date_status == 'available' %}enabled{% else %}disabled{% endif %}"
+        class="unit-card-btn {% if unit.date_status == 'available' %}enabled{% else %}disabled{% endif %}"
         {% if unit.date_status != 'available' %}disabled{% endif %}
         onclick="showToast('به‌زودی: تکمیل رزرو «{{ unit.unit_type }} - {{ venue.name }}»')">
-        رزرو
+        مشاهده و رزرو
       </button>
     </div>
-    {% endfor %}
   </div>
+  {% endfor %}
 </div>
 {% empty %}
 <div class="venues-empty-box">
@@ -643,68 +649,20 @@
   document.getElementById('cityNameTitle').textContent = cityName;
   document.getElementById('cityNameVenues').textContent = cityName;
 
-  /* ---------- slideshow (placeholder slides) ---------- */
-  const slideIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>`;
-  const slidePalette = [
-    "linear-gradient(135deg,#127079,#0c3a3e)",
-    "linear-gradient(135deg,#dcb35c,#a9793a)",
-    "linear-gradient(135deg,#1a8f8f,#0c3a3e)"
-  ];
-  const slideCaptions = [
-    "چشم‌اندازی از مهمان‌سراهای این شهر",
-    "فضایی آرام برای اقامتی به‌یادماندنی",
-    "امکانات رفاهی مخصوص اعضای خانه کارگر"
-  ];
-
-  const slideshow = document.getElementById('citySlideshow');
-  let currentSlide = 0;
-
-  slidePalette.forEach((bg, i) => {
-    const el = document.createElement('div');
-    el.className = 'slide' + (i === 0 ? ' active' : '');
-    el.style.background = bg;
-    el.innerHTML = `
-      <div class="slide-icon">${slideIcon}</div>
-      <div class="slide-overlay"></div>
-      <div class="slide-caption">
-        <h3>${cityName}</h3>
-        <p>${slideCaptions[i]}</p>
-      </div>`;
-    slideshow.appendChild(el);
-  });
-
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'slideshow-nav slide-prev';
-  prevBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>`;
-  prevBtn.onclick = () => changeSlide(currentSlide - 1);
-
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'slideshow-nav slide-next';
-  nextBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>`;
-  nextBtn.onclick = () => changeSlide(currentSlide + 1);
-
-  const dotsWrap = document.createElement('div');
-  dotsWrap.className = 'slideshow-dots';
-  slidePalette.forEach((_, i) => {
-    const dot = document.createElement('button');
-    dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
-    dot.onclick = () => changeSlide(i);
-    dotsWrap.appendChild(dot);
-  });
-
-  slideshow.appendChild(prevBtn);
-  slideshow.appendChild(nextBtn);
-  slideshow.appendChild(dotsWrap);
-
-  function changeSlide(i){
-    const slides = slideshow.querySelectorAll('.slide');
-    const dots = dotsWrap.querySelectorAll('.slide-dot');
-    currentSlide = (i + slides.length) % slides.length;
-    slides.forEach((s, idx) => s.classList.toggle('active', idx === currentSlide));
-    dots.forEach((d, idx) => d.classList.toggle('active', idx === currentSlide));
-  }
-
-  setInterval(() => changeSlide(currentSlide + 1), 5000);
+<div class="city-slideshow" id="citySlideshow">
+  {% for slide in slides %}
+  <div class="slide {% if forloop.first %}active{% endif %}">
+   <img src="{{ slide.image.url }}" alt="{{ slide.caption }}" class="slide-img">
+    <div class="slide-overlay"></div>
+    {% if slide.caption %}
+    <div class="slide-caption">
+      <h3>{{ city_name }}</h3>
+      <p>{{ slide.caption }}</p>
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</div>
 
   /* ---------- announcements (reused) ---------- */
   const announcements = [

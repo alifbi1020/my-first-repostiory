@@ -17,7 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from venues.views import city_results, home, dashboard
+from venues.views import city_results, home, dashboard, vacancy_list
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +31,7 @@ urlpatterns = [
     path('dashboard.html', dashboard, name='dashboard'),
 
     path('city.html', city_results, name='city_results'),
+    path('api/vacancies/', vacancy_list, name='vacancy_list')
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
