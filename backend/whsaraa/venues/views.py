@@ -70,6 +70,7 @@ def city_results(request):
 
     city_obj = city.objects.filter(name=city_name).first()
     slides = city_obj.slides.all() if city_obj else []
+    city_rules = city_obj.rules if city_obj else ''
 
     for venue in venues:
         for unit in venue.units.all():
@@ -85,6 +86,7 @@ def city_results(request):
         'city_name': city_name,
         'venues': venues,
         'slides': slides,
+        'city_rules': city_rules,
         'selected_date_fa': to_jalali_display(selected_date),
         'prev_date_param': gregorian_to_jalali_param(selected_date - timedelta(days=1)),
         'next_date_param': gregorian_to_jalali_param(selected_date + timedelta(days=1)),

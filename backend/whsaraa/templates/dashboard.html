@@ -1174,16 +1174,18 @@
 
   /* ---------- search buttons ---------- */
   function handleSearch(){
-  if(!selectedCity){ openCityModal(); return; }
-  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
-  if(selectedDate){
-    const jy = selectedDate.jy;
-    const jm = String(selectedDate.jm).padStart(2, '0');
-    const jd = String(selectedDate.jd).padStart(2, '0');
-    url += `&date=${jy}-${jm}-${jd}`;
+    if(!selectedCity){
+      showToast('لطفاً مهمان‌سرا یا شهر مقصد را انتخاب کنید');
+      openCityModal();
+      return;
+    }
+    if(!selectedDate){
+      showToast('لطفاً تاریخ ورود را نیز انتخاب کنید');
+      openDateModal();
+      return;
+    }
+    window.location.href = 'city.html?city=' + encodeURIComponent(selectedCity);
   }
-  window.location.href = url;
-}
 
 function handleVacancySearch(){
   if(!selectedCity){ openCityModal(); return; }
