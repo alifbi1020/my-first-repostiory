@@ -2,7 +2,7 @@ from django.db import models
 
 class city(models.Model):
     name = models.CharField(max_length= 50, unique=True, verbose_name="نام شهر")
-    rules = models.TextField(blank= True, verbose_name="قوانین و مقررات")
+    rules = models.TextField(blank=True, verbose_name="قوانین و مقررات")
 
     def __str__(self):
         return self.name
@@ -25,7 +25,7 @@ class RoomUnit(models.Model):
     STATUS_CHOICES = [
         ('undefined', 'تعریف نشده'),
         ('available', 'ظرفیت خالی'),
-        ('full', 'ظرفیت تکمیل'),
+        ('full', 'ظرفیت پر'),
     ]
     venue = models.ForeignKey(Venue, on_delete=models.CASCADE, related_name='units', verbose_name="مهمان سرا")
     unit_type = models.CharField(max_length=100, verbose_name="نوع واحد")

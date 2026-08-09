@@ -1,4 +1,4 @@
-{% load humanize %}
+{% load custom_filters %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -7,6 +7,43 @@
 <title>نتایج شهر - سامانه سرا خانه کارگر</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
 <style>
+  .rules-modal-box{max-width:560px; max-height:80vh; display:flex; flex-direction:column;}
+  .rules-modal-body{overflow-y:auto; padding-top:4px;}
+  .rules-modal-body p{
+    font-size:13.5px;
+    line-height:2.1;
+    color:var(--text);
+    text-align:justify;
+    direction:rtl;
+  }
+  .rules-empty{color:var(--muted); text-align:center;}
+  .week-strip-wrap{
+    display:flex; align-items:center; gap:12px;
+    background:var(--white); border-radius:16px; padding:12px;
+    margin-bottom:28px; box-shadow:0 6px 16px rgba(12,58,62,.08);
+  }
+  .week-nav{
+    flex:0 0 auto; width:34px; height:34px; border-radius:50%;
+    background:var(--teal-light); border:none;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:background .2s;
+  }
+  .week-nav:hover{background:#dcecea;}
+  .week-nav svg{width:16px; height:16px; stroke:var(--teal-dark);}
+  .week-strip{flex:1; display:flex; gap:10px; overflow-x:auto; scroll-behavior:smooth;}
+  .week-strip::-webkit-scrollbar{display:none;}
+  .week-day{
+    flex:1 0 auto; min-width:110px; text-align:center;
+    padding:12px 10px; border-radius:12px;
+    border:1.5px solid #e3edec; background:var(--bg); transition:.15s;
+  }
+  .week-day:hover{border-color:var(--teal);}
+  .week-day-name{display:block; font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:4px;}
+  .week-day-num{display:block; font-size:11.5px; color:var(--muted);}
+  .week-day.active{background:#e8f1fb; border-color:#3d7dd6;}
+  .week-day.active .week-day-name, .week-day.active .week-day-num{color:#2f5fa8;}
+  @media(max-width:700px){ .week-day{min-width:88px;} 
+  }
   :root{
     --teal-dark:#0c3a3e;
     --teal:#127079;
@@ -105,6 +142,117 @@
   }
   .login-btn:hover{background:var(--gold-dark); transform:translateY(-1px);}
   .header-actions{display:flex; align-items:center; gap:22px;}
+  .profile-chip{
+    display:flex; align-items:center; gap:10px;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.25);
+    border-radius:30px;
+    padding:6px 8px 6px 16px;
+  }
+  .profile-avatar{
+    width:32px; height:32px;
+    border-radius:50%;
+    background:var(--gold);
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+    overflow:hidden;
+  }
+  .profile-avatar svg{width:17px; height:17px; stroke:var(--teal-dark);}
+  .profile-chip .profile-name{
+    color:var(--white);
+    font-size:13.5px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .profile-chip .dashboard-link{
+    color:var(--gold);
+    font-size:12.5px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,.25);
+    padding-right:10px;
+    white-space:nowrap;
+  }
+  .profile-chip .dashboard-link:hover{text-decoration:underline;}
+  .profile-chip .logout-link{
+    color:#f3d2d2;
+    font-size:12.5px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,.25);
+    padding-right:10px;
+    white-space:nowrap;
+  }
+  .profile-chip .logout-link:hover{text-decoration:underline;}
+
+  .profile-box{
+    background:var(--teal-dark);
+    padding:18px;
+  }
+  .profile-box-top{
+    display:flex; align-items:center; gap:12px;
+    margin-bottom:16px;
+  }
+  .profile-box .profile-avatar{
+    width:42px; height:42px;
+  }
+  .profile-box .profile-avatar svg{width:22px; height:22px;}
+  .profile-box .profile-name{
+    color:var(--white);
+    font-size:14px;
+    font-weight:700;
+    line-height:1.6;
+  }
+  .dashboard-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:var(--gold);
+    color:var(--teal-dark);
+    font-weight:800;
+    font-size:13.5px;
+    padding:11px;
+    border-radius:10px;
+    transition:background .2s;
+  }
+  .dashboard-btn:hover{background:var(--gold-dark);}
+  .logout-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:transparent;
+    color:#f3d2d2;
+    font-weight:700;
+    font-size:12.5px;
+    padding:9px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.25);
+    margin-top:8px;
+    transition:background .2s;
+  }
+  .logout-btn:hover{background:rgba(255,255,255,.08);}
+  .sidebar-btn{
+    display:flex; align-items:center; gap:12px;
+    width:100%;
+    background:var(--white);
+    border:1.5px solid #e3edec;
+    border-radius:14px;
+    padding:15px 16px;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    color:var(--text);
+    cursor:pointer;
+    box-shadow:0 8px 22px rgba(12,58,62,.06);
+    transition:border-color .2s, transform .15s, background .2s;
+  }
+  .sidebar-btn:hover{border-color:var(--teal); transform:translateX(-2px); background:var(--teal-light);}
+  .sidebar-btn svg{width:19px; height:19px; stroke:var(--teal); flex-shrink:0;}
+  .sidebar-btn.login-side-btn{
+    background:var(--teal);
+    border-color:var(--teal);
+    color:var(--white);
+  }
+  .sidebar-btn.login-side-btn svg{stroke:var(--white);}
+  .sidebar-btn.login-side-btn:hover{background:var(--teal-mid);}
   .nav-toggle{display:none; background:none; border:none; cursor:pointer;}
   .nav-toggle svg{width:26px; height:26px; stroke:var(--white);}
 
@@ -141,6 +289,11 @@
     gap:26px;
     align-items:start;
     margin-bottom:44px;
+  }
+  .city-sidebar-col{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
   }
 
   .city-slideshow{
@@ -291,70 +444,68 @@
     font-size:13.5px;
   }
 
-/* --- Unit cards (image per unit) --- */
-  .venue-group{margin-bottom:34px;}
+  /* --- venue groups --- */
+  .venue-group{margin-bottom:38px;}
   .venue-group:last-child{margin-bottom:0;}
+  .venue-group-head{display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;}
+  .venue-group-title{font-size:16px; font-weight:800; color:var(--teal-dark); padding-right:10px; border-right:3px solid var(--gold);}
+  .venue-room-count{font-size:11.5px; font-weight:700; background:var(--teal-light); color:var(--teal-dark); padding:5px 14px; border-radius:20px;}
 
-  .unit-card-row{
-    display:flex;
-    align-items:stretch;
-    background:var(--white);
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 8px 22px rgba(12,58,62,.08);
-    margin-bottom:16px;
+  /* --- unit list rows --- */
+  .unit-list{display:flex; flex-direction:column; gap:12px;}
+  .unit-list-row{
+    display:flex; align-items:stretch; background:var(--white);
+    border-radius:16px; overflow:hidden;
+    box-shadow:0 6px 16px rgba(12,58,62,.07);
   }
-  .unit-card-row:last-child{margin-bottom:0;}
-
-  .unit-card-image{flex:0 0 240px; min-height:150px; background:var(--teal-light);}
-  .unit-card-image img{width:100%; height:100%; object-fit:cover; display:block;}
-  .unit-card-image-placeholder{
-    width:100%; height:100%;
+  .unit-list-image{flex:0 0 200px; background:var(--teal-light);}
+  .unit-list-image img{width:100%; height:100%; min-height:120px; object-fit:cover; display:block;}
+  .unit-list-image-placeholder{
+    width:100%; height:100%; min-height:120px;
     display:flex; align-items:center; justify-content:center;
     background:linear-gradient(135deg, var(--teal), var(--teal-dark));
   }
-  .unit-card-image-placeholder svg{width:32px; height:32px; opacity:.7;}
+  .unit-list-image-placeholder svg{width:28px; height:28px; opacity:.7;}
 
-  .unit-card-info{
+  .unit-list-info{
     flex:1; min-width:0; padding:18px 20px;
-    display:flex; flex-direction:column; gap:8px; justify-content:center;
+    display:flex; flex-direction:column; justify-content:center; gap:6px;
   }
-  .unit-card-type{font-size:15px; font-weight:800; color:var(--text);}
-  .unit-card-subtype{font-size:12.5px; color:var(--muted);}
-  .unit-card-status{
-    display:inline-block; width:fit-content;
-    font-size:10.5px; font-weight:700;
-    padding:3px 10px; border-radius:20px;
-  }
-  .unit-card-status.status-undefined{background:#e7eaea; color:#697777;}
-  .unit-card-status.status-available{background:#dcf3e6; color:#1a8f4a;}
-  .unit-card-status.status-full{background:#fbe1de; color:#c0392b;}
+  .unit-list-type{font-size:14.5px; font-weight:800; color:var(--text);}
+  .unit-list-capacity{display:flex; align-items:center; gap:5px; font-size:12px; color:var(--muted);}
+  .unit-list-capacity svg{width:13px; height:13px; stroke:var(--muted);}
 
-  .unit-card-booking{
-    flex:0 0 200px;
-    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
-    padding:18px 16px;
-    border-right:1px dashed #e3edec;
+  .unit-list-price{
+    flex:0 0 180px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-right:1px dashed #e3edec; padding:16px; text-align:center;
   }
-  .unit-card-price{font-size:15px; font-weight:800; color:var(--teal); text-align:center;}
-  .unit-card-price span{display:block; font-size:11px; font-weight:500; color:var(--muted);}
-  .unit-card-btn{
-    width:100%; border:none; border-radius:10px; padding:11px;
+  .unit-list-price-value{font-size:14.5px; font-weight:800; color:var(--teal-dark);}
+  .unit-list-price-unit{font-size:11px; color:var(--muted); margin-top:3px;}
+
+  .unit-list-action{
+    flex:0 0 160px;
+    display:flex; align-items:center; justify-content:center; padding:16px;
+  }
+  .unit-list-btn{
+    width:100%; border:none; border-radius:10px; padding:12px;
     font-family:inherit; font-size:13px; font-weight:700; cursor:pointer;
-    transition:background .2s;
+    transition:background .2s; color:var(--white); background:var(--teal-dark);
   }
-  .unit-card-btn.enabled{background:var(--teal); color:var(--white);}
-  .unit-card-btn.enabled:hover{background:var(--teal-mid);}
-  .unit-card-btn.disabled{background:#eef2f2; color:#a7b4b4; cursor:not-allowed;}
+  .unit-list-btn:hover{background:var(--teal-mid);}
+  .unit-list-full{
+    width:100%; text-align:center; font-size:12px; font-weight:700;
+    color:#c0392b; background:#fbe1de; padding:12px; border-radius:10px;
+  }
+  .unit-list-full-neutral{
+    width:100%; text-align:center; font-size:12px; font-weight:700;
+    color:#697777; background:#e7eaea; padding:12px; border-radius:10px;
+  }
 
-  @media(max-width:700px){
-    .unit-card-row{flex-direction:column;}
-    .unit-card-image{flex:0 0 auto; width:100%; height:160px;}
-    .unit-card-booking{
-      flex:0 0 auto; width:100%;
-      border-right:none; border-top:1px dashed #e3edec;
-      flex-direction:row; justify-content:space-between;
-    }
+  @media(max-width:800px){
+    .unit-list-row{flex-direction:column;}
+    .unit-list-image{flex:0 0 auto; width:100%; height:150px;}
+    .unit-list-price{border-right:none; border-top:1px dashed #e3edec;}
   }
 
   /* --- Modal (announcement detail, reused) --- */
@@ -540,6 +691,33 @@
     direction:rtl;
   }
   .rules-empty{color:var(--muted); text-align:center;}
+
+  .payment-modal-box{max-width:420px;}
+  .payment-modal-desc{font-size:13px; color:var(--muted); margin-bottom:18px;}
+  .payment-options{display:flex; flex-direction:column; gap:12px;}
+  .payment-option-btn{
+    display:flex; align-items:center; gap:14px;
+    background:var(--teal-light);
+    border:1.5px solid #e3edec;
+    border-radius:14px;
+    padding:16px 18px;
+    cursor:pointer;
+    font-family:inherit;
+    transition:border-color .2s, background .2s;
+    text-align:right;
+  }
+  .payment-option-btn:hover{border-color:var(--teal); background:#dcecea;}
+  .payment-option-icon{
+    width:44px; height:44px; flex-shrink:0;
+    background:var(--white); border-radius:12px;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(12,58,62,.08);
+  }
+  .payment-option-icon svg{width:20px; height:20px; stroke:var(--teal);}
+  .payment-option-text{flex:1; display:flex; flex-direction:column; gap:3px;}
+  .payment-option-title{font-size:13.5px; font-weight:700; color:var(--text);}
+  .payment-option-sub{font-size:11.5px; color:var(--muted);}
+  .payment-option-arrow{width:16px; height:16px; stroke:var(--muted); flex-shrink:0;}
 </style>
 </head>
 <body>
@@ -570,7 +748,18 @@
     </nav>
 
     <div class="header-actions">
-      <button class="login-btn" onclick="location.href='login.html'">ورود</button>
+  {% if user.is_authenticated %}
+    <div class="profile-chip" id="profileChipHeader" style="display:flex">
+      <div class="profile-avatar">
+        {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>{% endif %}
+      </div>
+      <span class="profile-name">{{ user.first_name }} {{ user.last_name }}</span>
+      <a href="{% url 'logout' %}" class="logout-link">خروج</a>
+      <a href="dashboard.html" class="dashboard-link">داشبورد</a>
+    </div>
+  {% else %}
+    <button class="login-btn" id="loginBtnHeader" onclick="location.href='login.html'">ورود</button>
+  {% endif %}
       <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
       </button>
@@ -612,63 +801,111 @@
       <div class="slideshow-dots" id="slideshowDots"></div>
     </div>
 
-    <div class="sidebar-box announce-box">
-      <h3 class="sidebar-title">اطلاعیه‌ها</h3>
-      <ul class="announce-list" id="announceList"></ul>
+    <div class="city-sidebar-col">
+      <div class="sidebar-box announce-box">
+        <h3 class="sidebar-title">اطلاعیه‌ها</h3>
+        <ul class="announce-list" id="announceList"></ul>
+      </div>
+
+      {% if user.is_authenticated %}
+      <div class="sidebar-box profile-box" style="display:block">
+        <div class="profile-box-top">
+          <div class="profile-avatar">
+            {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>{% endif %}
+          </div>
+          <span class="profile-name">{{ user.first_name }} {{ user.last_name }}</span>
+        </div>
+        <a href="dashboard.html" class="dashboard-btn">داشبورد</a>
+        <a href="{% url 'logout' %}" class="logout-btn">خروج از حساب</a>
+      </div>
+      {% else %}
+      <button class="sidebar-btn login-side-btn" onclick="location.href='login.html'">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+        <span>ورود</span>
+      </button>
+      {% endif %}
     </div>
   </div>
 
-  <div class="city-venues-section">
+  <div class="city-venues-section"  id="venues-section">
     <div class="section-head">
       <h2>مهمان‌سراهای <span id="cityNameVenues">{{ city_name }}</span></h2>
     </div>
 
-    <div class="date-nav-bar">
-      <a href="?city={{ city_name|urlencode }}&date={{ prev_date_param }}">‹</a>
-      <span>مهمان‌سراها در تاریخ {{ selected_date_fa }}</span>
-      <a href="?city={{ city_name|urlencode }}&date={{ next_date_param }}">›</a>
-    </div>
+    <div class="week-strip-wrap">
+  <button class="week-nav" onclick="location.href='?city={{ city_name|urlencode }}&date={{ week_prev_param }} #venues-section'">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+  </button>
+  <div class="week-strip">
+    {% for day in week_strip %}
+    <a href="?city={{ city_name|urlencode }}&date={{ day.date_param }} #venues-section" class="week-day {% if day.is_selected %}active{% endif %}">
+      <span class="week-day-name">{{ day.weekday }}</span>
+      <span class="week-day-num">{{ day.day_fa }}/{{ day.month_fa }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  <button class="week-nav" onclick="location.href='?city={{ city_name|urlencode }}&date={{ week_next_param }} #venues-section'">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+  </button>
+</div>
 
     {% for venue in venues %}
 <div class="venue-group">
-  <h3 class="venue-group-title">{{ venue.name }}</h3>
-
-  {% for unit in venue.units.all %}
-  <div class="unit-card-row">
-    <div class="unit-card-image">
-      {% if unit.cover_image %}
-        <img src="{{ unit.cover_image.url }}" alt="{{ unit.unit_type }}">
-      {% else %}
-        <div class="unit-card-image-placeholder">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>
-        </div>
-      {% endif %}
-    </div>
-
-    <div class="unit-card-info">
-      <span class="unit-card-type">{{ unit.unit_type }}</span>
-      {% if unit.room_type %}<span class="unit-card-subtype">{{ unit.room_type }}</span>{% endif %}
-      <span class="unit-card-status status-{{ unit.date_status }}">{{ unit.date_status_label }}</span>
-    </div>
-
-    <div class="unit-card-booking">
-      <span class="unit-card-price">{{ unit.price_per_night|intcomma }}<span>ریال / شب</span></span>
-      <button
-        class="unit-card-btn {% if unit.date_status == 'available' %}enabled{% else %}disabled{% endif %}"
-        {% if unit.date_status != 'available' %}disabled{% endif %}
-        onclick="openReservationModal({
-          city: '{{ city_name|escapejs }}',
-          venue: '{{ venue.name|escapejs }}',
-          unitType: '{{ unit.unit_type|escapejs }}',
-          roomType: '{{ unit.room_type|default:''|escapejs }}',
-          price: {{ unit.price_per_night|default:0 }},
-          image: '{% if unit.cover_image %}{{ unit.cover_image.url|escapejs }}{% endif %}'
-        })">
-        مشاهده و رزرو
-      </button>
-    </div>
+  <div class="venue-group-head">
+    <h3 class="venue-group-title">{{ venue.name }}</h3>
+    <span class="venue-room-count">{{ venue.units.all|length }} اتاق</span>
   </div>
-  {% endfor %}
+
+  <div class="unit-list">
+    {% for unit in venue.units.all %}
+    <div class="unit-list-row">
+      <div class="unit-list-image">
+        {% if unit.cover_image %}
+          <img src="{{ unit.cover_image.url }}" alt="{{ unit.unit_type }}">
+        {% else %}
+          <div class="unit-list-image-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-6h6v6"/><path d="M9 11h.01M15 11h.01M9 15h.01M15 15h.01"/></svg>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="unit-list-info">
+        <span class="unit-list-type">{{ unit.unit_type }}</span>
+        {% if unit.room_type %}
+        <span class="unit-list-capacity">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
+          {{ unit.room_type }}
+        </span>
+        {% endif %}
+      </div>
+
+      <div class="unit-list-price">
+        <span class="unit-list-price-value">{{ unit.price_per_night|fa_price }} ریال</span>
+        <span class="unit-list-price-unit">هر شب</span>
+      </div>
+
+      <div class="unit-list-action">
+        {% if unit.date_status == 'available' %}
+        <button class="unit-list-btn"
+          onclick="openReservationModal({
+            city: '{{ city_name|escapejs }}',
+            venue: '{{ venue.name|escapejs }}',
+            unitType: '{{ unit.unit_type|escapejs }}',
+            roomType: '{{ unit.room_type|default:''|escapejs }}',
+            price: {{ unit.price_per_night|default:0 }},
+            image: '{% if unit.cover_image %}{{ unit.cover_image.url|escapejs }}{% endif %}'
+          })">
+          رزرو اتاق
+        </button>
+        {% elif unit.date_status == 'full' %}
+        <span class="unit-list-full">ظرفیت تکمیل</span>
+        {% else %}
+        <span class="unit-list-full-neutral">تعریف‌نشده</span>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
 </div>
 {% empty %}
 <div class="venues-empty-box">
@@ -746,6 +983,42 @@
   </div>
 </div>
 
+<!-- ===== Payment method modal ===== -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box payment-modal-box">
+    <div class="modal-head">
+      <h2>انتخاب روش پرداخت</h2>
+      <button class="modal-close" onclick="closePaymentModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="payment-modal-desc">لطفاً روش پرداخت خود را انتخاب کنید:</p>
+    <div class="payment-options">
+      <button class="payment-option-btn" onclick="showToast('به‌زودی: اتصال به کیف پول')">
+        <div class="payment-option-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="15" r="2"/></svg>
+        </div>
+        <div class="payment-option-text">
+          <span class="payment-option-title">پرداخت از طریق کیف پول</span>
+          <span class="payment-option-sub">استفاده از موجودی کیف پول سامانه</span>
+        </div>
+        <svg class="payment-option-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+
+      <button class="payment-option-btn" onclick="showToast('به‌زودی: اتصال به درگاه پرداخت')">
+        <div class="payment-option-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+        </div>
+        <div class="payment-option-text">
+          <span class="payment-option-title">پرداخت مستقیم از طریق درگاه</span>
+          <span class="payment-option-sub">پرداخت آنلاین با کارت بانکی</span>
+        </div>
+        <svg class="payment-option-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- ===== Reservation identity (شناسنامه رزرو) modal ===== -->
 <div class="modal-overlay" id="reservationModal">
   <div class="modal-box res-modal-box">
@@ -791,10 +1064,10 @@
         <div class="res-section">
           <div class="res-section-title">مشخصات مسافر</div>
           <table class="res-table">
-            <tr><th>نام</th><td>علیرضا</td></tr>
-            <tr><th>نام خانوادگی</th><td>توسطی تکان‌تپه</td></tr>
-            <tr><th>شماره ملی</th><td>0025780328</td></tr>
-            <tr><th>شماره همراه</th><td>09055350154</td></tr>
+            <tr><th>نام</th><td>{{ user.first_name }}</td></tr>
+            <tr><th>نام خانوادگی</th><td>{{ user.last_name }}</td></tr>
+            <tr><th>شماره ملی</th><td>{{ user.national_code }}</td></tr>
+            <tr><th>شماره همراه</th><td>{{ user.phone_number }}</td></tr>
             <tr><th>کد عضویت</th><td>42102113470363</td></tr>
             <tr><th>اعتبار عضویت</th><td>1406/02/29</td></tr>
           </table>
@@ -815,6 +1088,24 @@
       </div>
     </div>
 
+    <div class="modal-overlay" id="rulesModal">
+  <div class="modal-box rules-modal-box">
+    <div class="modal-head">
+      <h2>قوانین و مقررات {{ city_name }}</h2>
+      <button class="modal-close" onclick="closeRulesModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <div class="rules-modal-body">
+      {% if city_rules %}
+        <p>{{ city_rules|linebreaksbr }}</p>
+      {% else %}
+        <p class="rules-empty">قوانین این شهر هنوز ثبت نشده است.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
     <div class="res-terms">
       <label class="res-terms-check">
         <input type="checkbox" id="resAgreeCheckbox" onchange="handleAgreeChange()">
@@ -822,7 +1113,7 @@
       </label>
     </div>
     <div class="res-actions">
-      <button class="res-btn res-btn-pay" id="resPayBtn" disabled onclick="showToast('به‌زودی: اتصال به درگاه پرداخت')">پرداخت</button>
+      <button class="res-btn res-btn-pay" id="resPayBtn" disabled onclick="openPaymentModal()">پرداخت</button>
       <button class="res-btn res-btn-back" onclick="closeReservationModal()">بازگشت</button>
     </div>
   </div>
@@ -983,6 +1274,23 @@
   }
   document.getElementById('rulesModal').addEventListener('click', (e) => {
     if(e.target === document.getElementById('rulesModal')) closeRulesModal();
+  });
+  function closeRulesModal(){
+    document.getElementById('rulesModal').classList.remove('open');
+  }
+  document.getElementById('rulesModal').addEventListener('click', (e) => {
+    if(e.target === document.getElementById('rulesModal')) closeRulesModal();
+  });
+
+  function openPaymentModal(){
+    closeReservationModal();
+    document.getElementById('paymentModal').classList.add('open');
+  }
+  function closePaymentModal(){
+    document.getElementById('paymentModal').classList.remove('open');
+  }
+  document.getElementById('paymentModal').addEventListener('click', (e) => {
+    if(e.target === document.getElementById('paymentModal')) closePaymentModal();
   });
 
   /* ---------- announcements (reused) ---------- */

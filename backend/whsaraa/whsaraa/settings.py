@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
-
     'accounts',
     'content',
     'reservations',
@@ -89,37 +88,25 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
+AUTH_PASSWORD_VALIDATORS = []
 
 AUTH_USER_MODEL = 'accounts.user'
 
-AUTEHNTICATION_BACKENDS = [
-    'accounts.backends.NationalCodeOrMembershipBackend',
+AUTHENTICATION_BACKENDS = [
+    'accounts.backends.national_code_or_membership_code_backend',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+
+LANGUAGE_CODE = 'fa-ir'
+
+TIME_ZONE = 'Asia/Tehran'
 
 USE_I18N = True
-
 USE_TZ = True
 
 

@@ -21,6 +21,8 @@ class user(AbstractUser):
         validators=[RegexValidator(r'^\d{11}$', 'شماره همراه باید 11 رقم باشد.')],
         verbose_name= "شماره همراه"
     )
+    membership_expiry = models.DateField(null=True, blank=True, verbose_name="اعتبار عضویت")
+    profile_image = models.ImageField(upload_to='profiles/', blank=True, null=True, verbose_name="تصویر پروفایل")
     USERNAME_FIELD = 'membership_code'
     REQUIRED_FIELDS = ['username', 'national_code', 'phone_number']
 

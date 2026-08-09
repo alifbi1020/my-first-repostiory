@@ -118,6 +118,7 @@
     background:var(--gold);
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
+    overflow:hidden;
   }
   .profile-avatar svg{width:17px; height:17px; stroke:var(--teal-dark);}
   .profile-chip .profile-name{
@@ -135,6 +136,15 @@
     white-space:nowrap;
   }
   .profile-chip .dashboard-link:hover{text-decoration:underline;}
+  .profile-chip .logout-link{
+    color:#f3d2d2;
+    font-size:12.5px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,.25);
+    padding-right:10px;
+    white-space:nowrap;
+  }
+  .profile-chip .logout-link:hover{text-decoration:underline;}
 
   /* mobile nav toggle */
   .nav-toggle{display:none; background:none; border:none; cursor:pointer;}
@@ -569,6 +579,21 @@
     transition:background .2s;
   }
   .dashboard-btn:hover{background:var(--gold-dark);}
+  .logout-btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    background:transparent;
+    color:#f3d2d2;
+    font-weight:700;
+    font-size:12.5px;
+    padding:9px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,.25);
+    margin-top:8px;
+    transition:background .2s;
+  }
+  .logout-btn:hover{background:rgba(255,255,255,.08);}
 
   @media(max-width:980px){
     .two-col-wrap{grid-template-columns:1fr;}
@@ -810,18 +835,22 @@
     </nav>
 
     <div class="header-actions">
-      <button class="login-btn" id="loginBtnHeader" onclick="location.href='login.html'">ورود</button>
-      <div class="profile-chip" id="profileChipHeader" style="display:none">
-        <div class="profile-avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
-        </div>
-        <span class="profile-name" id="profileNameHeader"></span>
-        <a href="dashboard.html" class="dashboard-link">داشبورد</a>
+  {% if user.is_authenticated %}
+    <div class="profile-chip" id="profileChipHeader" style="display:flex">
+      <div class="profile-avatar">
+        {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>{% endif %}
       </div>
-      <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
-      </button>
+      <span class="profile-name">{{ user.first_name }} {{ user.last_name }}</span>
+      <a href="{% url 'logout' %}" class="logout-link">خروج</a>
+      <a href="dashboard.html" class="dashboard-link">داشبورد</a>
     </div>
+  {% else %}
+    <button class="login-btn" id="loginBtnHeader" onclick="location.href='login.html'">ورود</button>
+  {% endif %}
+  <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+</div>
   </div>
 </header>
 
@@ -898,20 +927,23 @@
       <ul class="announce-list" id="announceList"></ul>
     </div>
 
-    <button class="sidebar-btn login-side-btn" id="loginBtnSidebar" onclick="location.href='login.html'">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
-      <span>ورود</span>
-    </button>
-
-    <div class="sidebar-box profile-box" id="profileBoxSidebar" style="display:none">
-      <div class="profile-box-top">
-        <div class="profile-avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
-        </div>
-        <span class="profile-name" id="profileNameSidebar"></span>
+    {% if user.is_authenticated %}
+  <div class="sidebar-box profile-box" style="display:block">
+    <div class="profile-box-top">
+      <div class="profile-avatar">
+        {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>{% endif %}
       </div>
-      <a href="dashboard.html" class="dashboard-btn">داشبورد</a>
+      <span class="profile-name">{{ user.first_name }} {{ user.last_name }}</span>
     </div>
+    <a href="dashboard.html" class="dashboard-btn">داشبورد</a>
+    <a href="{% url 'logout' %}" class="logout-btn">خروج از حساب</a>
+  </div>
+{% else %}
+  <button class="sidebar-btn login-side-btn" onclick="location.href='login.html'">
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/></svg>
+    <span>ورود</span>
+  </button>
+{% endif %}
 
     <button class="sidebar-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9V3h12v6"/><rect x="6" y="13" width="12" height="8"/><path d="M6 17H4a2 2 0 01-2-2v-4a2 2 0 012-2h16a2 2 0 012 2v4a2 2 0 01-2 2h-2"/></svg>
@@ -1073,21 +1105,6 @@
   document.getElementById('headerLogoImg').src = IMG.logo;
   document.getElementById('footerLogoImg').src = IMG.logo;
 
-  /* ---------- login state (temporary, no backend yet) ---------- */
-  (function initLoginState(){
-    const params = new URLSearchParams(window.location.search);
-    if(params.get('loggedin') !== '1') return;
-
-    const userName = 'علیرضا توسطی تکان‌تپه';
-
-    document.getElementById('loginBtnHeader').style.display = 'none';
-    document.getElementById('profileChipHeader').style.display = 'flex';
-    document.getElementById('profileNameHeader').textContent = userName;
-
-    document.getElementById('loginBtnSidebar').style.display = 'none';
-    document.getElementById('profileBoxSidebar').style.display = 'block';
-    document.getElementById('profileNameSidebar').textContent = userName;
-  })();
 
   /* ---------- data ---------- */
   const cities = [{% for city in cities %}"{{ city.name }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
@@ -1338,19 +1355,17 @@
   });
 
   /* ---------- search button ---------- */
-function handleSearch(){
-    if(!selectedCity){
-      showToast('لطفاً مهمان‌سرا یا شهر مقصد را انتخاب کنید');
-      openCityModal();
-      return;
-    }
-    if(!selectedDate){
-      showToast('لطفاً تاریخ ورود را نیز انتخاب کنید');
-      openDateModal();
-      return;
-    }
-    window.location.href = 'city.html?city=' + encodeURIComponent(selectedCity);
+  function handleSearch(){
+  if(!selectedCity){ openCityModal(); return; }
+  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
+  if(selectedDate){
+    const jy = selectedDate.jy;
+    const jm = String(selectedDate.jm).padStart(2, '0');
+    const jd = String(selectedDate.jd).padStart(2, '0');
+    url += `&date=${jy}-${jm}-${jd}`;
   }
+  window.location.href = url;
+}
 
 function handleVacancySearch(){
   if(!selectedCity){ openCityModal(); return; }

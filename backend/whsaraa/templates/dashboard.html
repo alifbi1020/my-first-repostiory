@@ -107,6 +107,7 @@
     background:var(--gold);
     display:flex; align-items:center; justify-content:center;
     flex-shrink:0;
+    overflow:hidden;
   }
   .profile-avatar svg{width:17px; height:17px; stroke:var(--teal-dark);}
   .profile-chip .profile-name{
@@ -115,6 +116,15 @@
     font-weight:700;
     white-space:nowrap;
   }
+  .profile-chip .logout-link{
+    color:#f3d2d2;
+    font-size:12.5px;
+    font-weight:700;
+    border-right:1px solid rgba(255,255,255,.25);
+    padding-right:10px;
+    white-space:nowrap;
+  }
+  .profile-chip .logout-link:hover{text-decoration:underline;}
 
   .nav-toggle{display:none; background:none; border:none; cursor:pointer;}
   .nav-toggle svg{width:26px; height:26px; stroke:var(--white);}
@@ -184,6 +194,19 @@
     font-size:11px;
     color:var(--muted);
   }
+  .dash-logout-btn{
+    display:inline-block;
+    margin-top:16px;
+    background:transparent;
+    color:#c94f4f;
+    font-weight:700;
+    font-size:13px;
+    padding:9px 22px;
+    border-radius:10px;
+    border:1px solid #e3b8b8;
+    transition:background .2s;
+  }
+  .dash-logout-btn:hover{background:#fbeaea;}
 
   .dash-info-box{
     background:var(--white);
@@ -738,9 +761,10 @@
     <div class="header-actions">
       <div class="profile-chip">
         <div class="profile-avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
+          {% if user.profile_image %}<img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">{% else %}<svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>{% endif %}
         </div>
-        <span class="profile-name">علیرضا توسطی تکان‌تپه</span>
+        <span class="profile-name">{{ user.first_name }} {{ user.last_name }}</span>
+        <a href="{% url 'logout' %}" class="logout-link">خروج</a>
       </div>
       <button class="nav-toggle" id="navToggle" aria-label="باز کردن منو">
         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
@@ -756,10 +780,17 @@
     <div class="dash-profile-col">
       <div class="dash-avatar-box">
         <div class="dash-avatar">
+          {% if user.profile_image %}
+          <img src="{{ user.profile_image.url }}" alt="{{ user.first_name }}" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+          {% else %}
           <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21a8 8 0 10-16 0"/><circle cx="12" cy="8" r="5"/></svg>
+          {% endif %}
         </div>
-        <div class="dash-user-name">علیرضا توسطی تکان‌تپه</div>
+        <div class="dash-user-name">{{ user.first_name }} {{ user.last_name }}</div>
+        {% if not user.profile_image %}
         <div class="dash-avatar-note">پس از اتصال به سامانه خانه کارگر، تصویر پروفایل شما جایگزین می‌شود</div>
+        {% endif %}
+        <a href="{% url 'logout' %}" class="dash-logout-btn">خروج از حساب</a>
       </div>
 
       <div class="dash-info-box">
@@ -767,19 +798,19 @@
         <ul class="dash-info-list">
           <li>
             <span class="info-label">نام</span>
-            <span class="info-value">علیرضا</span>
+            <span class="info-value">{{ user.first_name }}</span>
           </li>
           <li>
             <span class="info-label">نام خانوادگی</span>
-            <span class="info-value">توسطی تکان‌تپه</span>
+            <span class="info-value">{{ user.last_name }}</span>
           </li>
           <li>
             <span class="info-label">شماره ملی</span>
-            <span class="info-value">0025780328</span>
+            <span class="info-value">{{ user.national_code }}</span>
           </li>
           <li>
             <span class="info-label">شماره همراه</span>
-            <span class="info-value">09055350154</span>
+            <span class="info-value">{{ user.phone_number }}</span>
           </li>
         </ul>
       </div>
@@ -1174,18 +1205,16 @@
 
   /* ---------- search buttons ---------- */
   function handleSearch(){
-    if(!selectedCity){
-      showToast('لطفاً مهمان‌سرا یا شهر مقصد را انتخاب کنید');
-      openCityModal();
-      return;
-    }
-    if(!selectedDate){
-      showToast('لطفاً تاریخ ورود را نیز انتخاب کنید');
-      openDateModal();
-      return;
-    }
-    window.location.href = 'city.html?city=' + encodeURIComponent(selectedCity);
+  if(!selectedCity){ openCityModal(); return; }
+  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
+  if(selectedDate){
+    const jy = selectedDate.jy;
+    const jm = String(selectedDate.jm).padStart(2, '0');
+    const jd = String(selectedDate.jd).padStart(2, '0');
+    url += `&date=${jy}-${jm}-${jd}`;
   }
+  window.location.href = url;
+}
 
 function handleVacancySearch(){
   if(!selectedCity){ openCityModal(); return; }

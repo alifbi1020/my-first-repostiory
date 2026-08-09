@@ -1,6 +1,10 @@
 from django.contrib import admin
 from .models import city, Venue, RoomUnit, Availability, CitySlide
 
+admin.site.site_header = "پنل مدیریت سامانه سرا"
+admin.site.site_title = "سامانه سرا"
+admin.site.index_title = "مدیریت سامانه"
+
 class AvailabilityInline(admin.TabularInline):
     model = Availability
     extra = 1

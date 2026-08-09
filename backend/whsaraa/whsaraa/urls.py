@@ -17,9 +17,10 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from venues.views import city_results, home, dashboard, vacancy_list
+from venues.views import city_results, home, dashboard, vacancy_list,dashboard_view
 from django.conf import settings
 from django.conf.urls.static import static
+from accounts.views import login_view, logout_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,11 +28,12 @@ urlpatterns = [
     path('', home, name='home'),
     path('index.html', home),
 
-    path('login.html', TemplateView.as_view(template_name='login.html'), name='login'),
-    path('dashboard.html', dashboard, name='dashboard'),
-
     path('city.html', city_results, name='city_results'),
-    path('api/vacancies/', vacancy_list, name='vacancy_list')
+    path('api/vacancies/', vacancy_list, name='vacancy_list'),
+
+    path('login.html', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),
+    path('dashboard.html', dashboard_view, name='dashboard'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

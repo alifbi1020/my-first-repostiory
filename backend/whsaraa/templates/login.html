@@ -1,3 +1,4 @@
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -381,18 +382,19 @@
   <p class="login-sub">برای استفاده از خدمات اعضا وارد حساب خود شوید</p>
 
   <div class="login-card">
-    <form id="loginForm" onsubmit="event.preventDefault(); handleLoginSubmit();">
+    <form id="loginForm" method="POST" action="">
+     {% csrf_token %}
       <div class="field-group">
         <label for="userId">نام کاربری: کد ملی یا کد عضویت</label>
         <div class="field-wrap">
-          <input type="text" id="userId" inputmode="numeric" autocomplete="username">
+          <input type="text" id="userId" name="userId" inputmode="numeric" autocomplete="username">
         </div>
       </div>
 
       <div class="field-group">
         <label for="userPass">گذرواژه: شماره تلفن ثبت شده در سامانه</label>
         <div class="field-wrap">
-          <input type="password" id="userPass" autocomplete="current-password">
+          <input type="password" id="userPass" name="userPass" autocomplete="current-password">s
           <button type="button" class="toggle-eye" id="toggleEye" aria-label="نمایش گذرواژه">
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
@@ -410,7 +412,11 @@
         </p>
       </div>
 
+      {% if error %}
+      <p class="login-error show">{{ error }}</p>
+      {% else %}
       <p class="login-error" id="loginError"></p>
+      {% endif %}
       <button type="submit" class="login-submit">ورود</button>
     </form>
 
@@ -470,21 +476,6 @@
   toggleEyeBtn.addEventListener('click', () => {
     passInput.type = passInput.type === 'password' ? 'text' : 'password';
   });
-
-  function handleLoginSubmit(){
-    // ورود موقت با نام کاربری/رمز ثابت — تا زمان اتصال به دیتابیس اصلی
-    const userId = document.getElementById('userId').value.trim();
-    const userPass = document.getElementById('userPass').value.trim();
-    const errorBox = document.getElementById('loginError');
-
-    if(userId === '0025780328' && userPass === '09055350154'){
-      errorBox.classList.remove('show');
-      window.location.href = 'index.html?loggedin=1';
-      return;
-    }
-    errorBox.textContent = 'نام کاربری یا گذرواژه اشتباه است.';
-    errorBox.classList.add('show');
-  }
 </script>
 
 </body>
