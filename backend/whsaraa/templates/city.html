@@ -1515,7 +1515,18 @@
   }
   
   // کامنت: تابع رفرش داشبورد برای آپدیت کردن آمار رزروها
+  // این تابع فقط زمانی کار می‌کند که کاربر در صفحه داشبورد باشد
   function refreshDashboard() {
+    // کامنت: بررسی می‌کنیم که آیا در صفحه داشبورد هستیم یا نه
+    const pendingEl = document.querySelector('.dash-stat-card.tone-gold .dash-stat-count');
+    const confirmedEl = document.querySelector('.dash-stat-card.tone-teal .dash-stat-count');
+    
+    // اگر در صفحه داشبورد نیستیم، خارج می‌شویم
+    if (!pendingEl && !confirmedEl) {
+      console.log('در صفحه داشبورد نیستیم، رفرش انجام نمی‌شود');
+      return;
+    }
+    
     // کامنت: درخواست به سرور برای دریافت آمار جدید
     fetch('/api/dashboard/stats/', {
       method: 'GET',
@@ -1527,15 +1538,26 @@
     .then(data => {
       if (data.success) {
         // کامنت: آپدیت کردن کارت‌های داشبورد
-        const pendingEl = document.querySelector('.dashboard-card:nth-child(4) .stat-value');
-        const confirmedEl = document.querySelector('.dashboard-card:nth-child(1) .stat-value');
+        console.log('آمار داشبورد:', data);
         
         if (pendingEl) {
           pendingEl.textContent = `${data.pending_count} مورد`;
+          // آپدیت کردن پیام جزئیات
+          const pendingCard = pendingEl.closest('.dash-stat-card');
+          if (pendingCard && data.pending_count > 0) {
+            pendingCard.setAttribute('data-detail', `شما ${data.pending_count} رزرو در انتظار پرداخت دارید.`);
+          }
         }
         if (confirmedEl) {
           confirmedEl.textContent = `${data.confirmed_count} مورد`;
+          // آپدیت کردن پیام جزئیات
+          const confirmedCard = confirmedEl.closest('.dash-stat-card');
+          if (confirmedCard && data.confirmed_count > 0) {
+            confirmedCard.setAttribute('data-detail', `شما ${data.confirmed_count} رزرو تأیید شده دارید.`);
+          }
         }
+        
+        showToast('داشبورد به‌روزرسانی شد');
       }
     })
     .catch(err => {
