@@ -3,6 +3,11 @@ from django.db import models
 class city(models.Model):
     name = models.CharField(max_length= 50, unique=True, verbose_name="نام شهر")
     rules = models.TextField(blank=True, verbose_name="قوانین و مقررات")
+    address = models.TextField(blank=True, verbose_name="آدرس")
+    phone = models.CharField(max_length=20, blank=True, verbose_name="تلفن")
+    fax = models.CharField(max_length=20, blank=True, verbose_name="نمابر")
+    email = models.EmailField(blank=True, verbose_name="پست الکترونیک")
+    manager_name = models.CharField(max_length=100, blank=True, verbose_name="مدیر استراحتگاه")
 
     def __str__(self):
         return self.name

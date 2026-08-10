@@ -384,6 +384,7 @@
   <div class="login-card">
     <form id="loginForm" method="POST" action="">
      {% csrf_token %}
+     <input type="hidden" name="next" value="{{ next }}">
       <div class="field-group">
         <label for="userId">نام کاربری: کد ملی یا کد عضویت</label>
         <div class="field-wrap">

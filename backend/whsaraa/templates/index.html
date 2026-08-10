@@ -208,6 +208,15 @@
     box-shadow:0 6px 18px rgba(220,179,92,.4);
   }
 
+  .vacancy-prompt{
+    text-align:center;
+    color:#e7f3f2;
+    font-size:13px;
+    font-weight:600;
+    margin-top:18px;
+    margin-bottom:2px;
+  }
+
   .vacancy-link{
     display:flex;
     align-items:center;
@@ -416,6 +425,55 @@
   }
   .city-btn:hover{border-color:var(--teal); background:#dcecea;}
   .city-btn svg{width:15px; height:15px; stroke:var(--teal); flex-shrink:0;}
+
+  .vacancy-modal-box{max-width:520px;}
+  .vacancy-date-note{
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:16px;
+  }
+  .vacancy-loading, .vacancy-empty{
+    text-align:center;
+    padding:30px 10px;
+    font-size:13.5px;
+    color:var(--muted);
+  }
+  .vacancy-city-group{
+    border:1.5px solid #e3edec;
+    border-radius:14px;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+  .vacancy-city-head{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:10px;
+    padding:13px 16px;
+    background:var(--teal-light);
+    cursor:pointer;
+    font-size:14.5px;
+    font-weight:800;
+    color:var(--teal-dark);
+  }
+  .vacancy-city-head .vc-count{
+    background:var(--gold);
+    color:var(--teal-dark);
+    font-size:11.5px;
+    font-weight:800;
+    border-radius:20px;
+    padding:2px 10px;
+  }
+  .vacancy-unit-list{padding:10px 16px 14px;}
+  .vacancy-unit-item{
+    display:flex; align-items:center; justify-content:space-between;
+    gap:8px;
+    padding:9px 0;
+    border-bottom:1px dashed #e3edec;
+    font-size:13px;
+    color:var(--text);
+  }
+  .vacancy-unit-item:last-child{border-bottom:none;}
+  .vacancy-unit-item .vu-venue{font-weight:700;}
+  .vacancy-unit-item .vu-type{color:var(--muted); font-size:12px;}
 
   /* --- Two column layout --- */
   .two-col-wrap{
@@ -894,6 +952,7 @@
         </div>
       </div>
 
+      <p class="vacancy-prompt">می‌خواهید سریع‌تر رزرو کنید؟</p>
       <button class="vacancy-link" onclick="handleVacancySearch()">
         <span class="vl-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
@@ -987,6 +1046,20 @@
       </button>
     </div>
     <div class="city-grid" id="cityGrid"></div>
+  </div>
+</div>
+
+<!-- ===== Vacancies-by-city modal ===== -->
+<div class="modal-overlay" id="vacancyModal">
+  <div class="modal-box vacancy-modal-box">
+    <div class="modal-head">
+      <h2>ظرفیت‌های خالی به تفکیک شهر</h2>
+      <button class="modal-close" onclick="closeVacancyModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <p class="vacancy-date-note" id="vacancyDateNote"></p>
+    <div id="vacancyResults"></div>
   </div>
 </div>
 
@@ -1149,46 +1222,32 @@
   ];
 
   const announcements = [
+    {% for a in announcements %}
     {
-      title:"ثبت‌نام مهمان‌سراهای تابستانی از ۱۵ مرداد آغاز می‌شود",
-      date:"۱۴۰۵/۰۴/۱۰",
-      fullDate:"چهارشنبه ۱۰ تیر ۱۴۰۵ ساعت: ۱۰:۰۰",
-      views:"۵۱۲",
-      body:"به اطلاع اعضای محترم خانه کارگر می‌رساند، ثبت‌نام رزرو مهمان‌سراهای تابستانی از تاریخ ۱۵ مرداد آغاز می‌شود. با توجه به محدودیت ظرفیت، پیشنهاد می‌شود اعضای محترم پیش از تکمیل ظرفیت نسبت به ثبت رزرو خود از طریق همین سامانه اقدام نمایند.",
-      link:{label:"جهت مشاهده‌ی جدول ظرفیت مهمان‌سراها به لینک زیر مراجعه فرمایید:", url:"#"}
+      title: "{{ a.title|escapejs }}",
+      date: "{{ a.date_short }}",
+      fullDate: "{{ a.date_full }}",
+      body: "{{ a.body|escapejs }}"
     },
-    {
-      title:"تعطیلی موقت استراحتگاه چمخاله جهت بازسازی",
-      date:"۱۴۰۵/۰۴/۰۲",
-      fullDate:"سه‌شنبه ۲ تیر ۱۴۰۵ ساعت: ۱۶:۲۵",
-      views:"۷۳۲۹",
-      body:"به اطلاع میهمانان گرامی مجتمع استراحتگاه شهید امامی (چمخاله) می‌رساند، این مجموعه از تاریخ فوق به‌مدت محدود جهت انجام عملیات بازسازی و نوسازی واحدهای اقامتی تعطیل خواهد بود. رزروهای ثبت‌شده در این بازه به‌صورت خودکار لغو و مبلغ پرداختی به کیف‌پول کاربر بازگردانده می‌شود."
-    },
-    {
-      title:"افزایش ظرفیت مهمان‌سرای مشهد در فصل زیارتی",
-      date:"۱۴۰۵/۰۳/۲۵",
-      fullDate:"دوشنبه ۲۵ خرداد ۱۴۰۵ ساعت: ۰۹:۱۵",
-      views:"۱٬۲۴۰",
-      body:"با توجه به افزایش تقاضای زیارتی در ماه‌های پیش‌رو، ظرفیت پذیرش زائرسرا و استراحتگاه پردیس مشهد افزایش یافته است. اعضای محترم می‌توانند برای بازه‌های زمانی جدید نیز از طریق بخش «مشاهده ظرفیت‌های خالی» اقدام به رزرو نمایند."
-    },
-    {
-      title:"تمدید مهلت استفاده از کارت عضویت تا پایان سال",
-      date:"۱۴۰۵/۰۳/۱۵",
-      fullDate:"جمعه ۱۵ خرداد ۱۴۰۵ ساعت: ۱۲:۴۰",
-      views:"۳۴۸",
-      body:"مهلت استفاده از تخفیفات ویژه‌ی کارت عضویت خانه کارگر که قرار بود در پایان فصل بهار منقضی شود، تا پایان سال جاری تمدید گردید. اعضای محترم می‌توانند همچنان از تخفیفات مهمان‌سراها و هتل‌های طرف قرارداد بهره‌مند شوند."
-    }
+    {% endfor %}
   ];
 
   /* ---------- render announcements ---------- */
   const announceList = document.getElementById('announceList');
-  announcements.forEach((a, i) => {
+  if(announcements.length === 0){
     const li = document.createElement('li');
     li.className = 'announce-item';
-    li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
-    li.addEventListener('click', () => openAnnounceModal(i));
+    li.innerHTML = `<span class="a-title" style="color:var(--muted)">اطلاعیه‌ای موجود نیست</span>`;
     announceList.appendChild(li);
-  });
+  } else {
+    announcements.forEach((a, i) => {
+      const li = document.createElement('li');
+      li.className = 'announce-item';
+      li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
+      li.addEventListener('click', () => openAnnounceModal(i));
+      announceList.appendChild(li);
+    });
+  }
 
   /* ---------- announcement detail modal ---------- */
   const announceModal = document.getElementById('announceModal');
@@ -1197,7 +1256,7 @@
     document.getElementById('announceModalTitle').textContent = a.title;
     document.getElementById('announceModalBody').textContent = a.body;
     document.getElementById('announceModalDate').textContent = a.fullDate;
-    document.getElementById('announceModalViews').textContent = `تعداد بازدید: ${a.views}`;
+    document.getElementById('announceModalViews').textContent = a.views !== undefined ? `تعداد بازدید: ${a.views}` : '';
 
     const linkBox = document.getElementById('announceModalLink');
     if(a.link){
@@ -1218,6 +1277,7 @@
   venues.forEach((v) => {
     const el = document.createElement('div');
     el.className = 'venue-card';
+    el.style.cursor = 'pointer';
     el.innerHTML = `
       <div class="venue-thumb">
         <img src="${v.img}" alt="${v.name}" loading="lazy">
@@ -1226,6 +1286,9 @@
         <h3>${v.name}</h3>
         <div class="venue-meta">${pinIcon.replace('stroke-width="2"','stroke="#5c7376" stroke-width="2"')} ${v.city}</div>
       </div>`;
+    el.addEventListener('click', () => {
+      window.location.href = 'city.html?city=' + encodeURIComponent(v.city);
+    });
     venueCarousel.appendChild(el);
   });
 
@@ -1276,6 +1339,79 @@
   cityModal.addEventListener('click', (e) => {
     if(e.target === cityModal) closeCityModal();
   });
+
+  /* ---------- vacancy modal ---------- */
+  const vacancyModal = document.getElementById('vacancyModal');
+  const vacancyResults = document.getElementById('vacancyResults');
+  const vacancyDateNote = document.getElementById('vacancyDateNote');
+
+  function openVacancyModal(){
+    vacancyModal.classList.add('open');
+    loadVacancies();
+  }
+  function closeVacancyModal(){
+    vacancyModal.classList.remove('open');
+  }
+  vacancyModal.addEventListener('click', (e) => {
+    if(e.target === vacancyModal) closeVacancyModal();
+  });
+
+  function goToCityVacancies(cityName, dateParam){
+    let url = 'city.html?city=' + encodeURIComponent(cityName);
+    if(dateParam) url += '&date=' + dateParam;
+    window.location.href = url;
+  }
+
+  function loadVacancies(){
+    vacancyResults.innerHTML = '<div class="vacancy-loading">در حال دریافت اطلاعات...</div>';
+    vacancyDateNote.textContent = '';
+
+    let apiUrl = 'api/vacancies/';
+    let dateParam = '';
+    if(selectedDate){
+      const jy = selectedDate.jy;
+      const jm = String(selectedDate.jm).padStart(2, '0');
+      const jd = String(selectedDate.jd).padStart(2, '0');
+      dateParam = `${jy}-${jm}-${jd}`;
+      apiUrl += '?date=' + dateParam;
+    }
+
+    fetch(apiUrl)
+      .then(r => r.json())
+      .then(data => {
+        vacancyDateNote.textContent = 'تاریخ: ' + (data.date || '');
+        if(!data.results || data.results.length === 0){
+          vacancyResults.innerHTML = '<div class="vacancy-empty">برای این تاریخ ظرفیت خالی‌ای ثبت نشده است.</div>';
+          return;
+        }
+        vacancyResults.innerHTML = '';
+        data.results.forEach(group => {
+          const box = document.createElement('div');
+          box.className = 'vacancy-city-group';
+
+          const head = document.createElement('div');
+          head.className = 'vacancy-city-head';
+          head.innerHTML = `<span>${group.city}</span><span class="vc-count">${group.count} ظرفیت</span>`;
+          head.addEventListener('click', () => goToCityVacancies(group.city, dateParam));
+          box.appendChild(head);
+
+          const list = document.createElement('div');
+          list.className = 'vacancy-unit-list';
+          group.units.forEach(u => {
+            const item = document.createElement('div');
+            item.className = 'vacancy-unit-item';
+            item.innerHTML = `<span class="vu-venue">${u.venue}</span><span class="vu-type">${u.roomType || u.unitType}</span>`;
+            list.appendChild(item);
+          });
+          box.appendChild(list);
+
+          vacancyResults.appendChild(box);
+        });
+      })
+      .catch(() => {
+        vacancyResults.innerHTML = '<div class="vacancy-empty">خطا در دریافت اطلاعات. دوباره تلاش کنید.</div>';
+      });
+  }
 
   /* ---------- Jalali date picker ---------- */
   const monthNames = ["فروردین","اردیبهشت","خرداد","تیر","مرداد","شهریور","مهر","آبان","آذر","دی","بهمن","اسفند"];
@@ -1368,15 +1504,7 @@
 }
 
 function handleVacancySearch(){
-  if(!selectedCity){ openCityModal(); return; }
-  let url = 'city.html?city=' + encodeURIComponent(selectedCity);
-  if(selectedDate){
-    const jy = selectedDate.jy;
-    const jm = String(selectedDate.jm).padStart(2, '0');
-    const jd = String(selectedDate.jd).padStart(2, '0');
-    url += `&date=${jy}-${jm}-${jd}`;
-  }
-  window.location.href = url;
+  openVacancyModal();
 }
 
   function showToast(msg){

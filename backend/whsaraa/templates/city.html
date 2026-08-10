@@ -401,6 +401,23 @@
   }
   .announce-list .a-date{font-size:11px; color:var(--muted);}
 
+  /* --- City info section --- */
+  .city-info-section{
+    background:var(--white);
+    border-radius:16px;
+    padding:22px 26px;
+    margin-bottom:36px;
+    box-shadow:0 8px 22px rgba(12,58,62,.06);
+  }
+  .city-info-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));
+    gap:20px;
+  }
+  .city-info-item{display:flex; flex-direction:column; gap:6px;}
+  .ci-label{color:var(--teal); font-weight:800; font-size:13px;}
+  .ci-value{color:var(--text); font-size:14.5px; font-weight:600; line-height:1.7;}
+
   /* --- Venues section (empty for now) --- */
   .city-venues-section .section-head{
     display:flex; align-items:center; justify-content:space-between;
@@ -827,6 +844,43 @@
     </div>
   </div>
 
+  {% if city_obj.address or city_obj.phone or city_obj.fax or city_obj.email or city_obj.manager_name %}
+  <div class="city-info-section">
+    <div class="city-info-grid">
+      {% if city_obj.address %}
+      <div class="city-info-item">
+        <span class="ci-label">آدرس</span>
+        <span class="ci-value">{{ city_obj.address }}</span>
+      </div>
+      {% endif %}
+      {% if city_obj.phone %}
+      <div class="city-info-item">
+        <span class="ci-label">تلفن</span>
+        <span class="ci-value">{{ city_obj.phone }}</span>
+      </div>
+      {% endif %}
+      {% if city_obj.fax %}
+      <div class="city-info-item">
+        <span class="ci-label">نمابر</span>
+        <span class="ci-value">{{ city_obj.fax }}</span>
+      </div>
+      {% endif %}
+      {% if city_obj.email %}
+      <div class="city-info-item">
+        <span class="ci-label">پست الکترونیک</span>
+        <span class="ci-value">{{ city_obj.email }}</span>
+      </div>
+      {% endif %}
+      {% if city_obj.manager_name %}
+      <div class="city-info-item">
+        <span class="ci-label">مدیر استراحتگاه</span>
+        <span class="ci-value">{{ city_obj.manager_name }}</span>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endif %}
+
   <div class="city-venues-section"  id="venues-section">
     <div class="section-head">
       <h2>مهمان‌سراهای <span id="cityNameVenues">{{ city_name }}</span></h2>
@@ -886,6 +940,7 @@
 
       <div class="unit-list-action">
         {% if unit.date_status == 'available' %}
+          {% if user.is_authenticated %}
         <button class="unit-list-btn"
           onclick="openReservationModal({
             city: '{{ city_name|escapejs }}',
@@ -893,10 +948,18 @@
             unitType: '{{ unit.unit_type|escapejs }}',
             roomType: '{{ unit.room_type|default:''|escapejs }}',
             price: {{ unit.price_per_night|default:0 }},
-            image: '{% if unit.cover_image %}{{ unit.cover_image.url|escapejs }}{% endif %}'
+            image: '{% if unit.cover_image %}{{ unit.cover_image.url|escapejs }}{% endif %}',
+            roomUnitId: {{ unit.id }},
+            date: '{{ selected_date_param }}'
           })">
           رزرو اتاق
         </button>
+          {% else %}
+        <button class="unit-list-btn"
+          onclick="location.href='login.html?next={{ request.get_full_path|urlencode }}'">
+          رزرو اتاق
+        </button>
+          {% endif %}
         {% elif unit.date_status == 'full' %}
         <span class="unit-list-full">ظرفیت تکمیل</span>
         {% else %}
@@ -1021,6 +1084,7 @@
 
 <!-- ===== Reservation identity (شناسنامه رزرو) modal ===== -->
 <div class="modal-overlay" id="reservationModal">
+  {% csrf_token %}
   <div class="modal-box res-modal-box">
     <div class="res-modal-head">
       <h2>شناسنامه رزرو</h2>
@@ -1113,7 +1177,7 @@
       </label>
     </div>
     <div class="res-actions">
-      <button class="res-btn res-btn-pay" id="resPayBtn" disabled onclick="openPaymentModal()">پرداخت</button>
+      <button class="res-btn res-btn-pay" id="resPayBtn" disabled onclick="confirmReservation()">پرداخت</button>
       <button class="res-btn res-btn-back" onclick="closeReservationModal()">بازگشت</button>
     </div>
   </div>
@@ -1220,7 +1284,9 @@
   function formatRial(n){
     return Number(n || 0).toLocaleString('en-US');
   }
+  let currentReservationData = null;
   function openReservationModal(data){
+    currentReservationData = data;
     document.getElementById('resAgreeCheckbox').checked = false;
     document.getElementById('resPayBtn').disabled = true;
 
@@ -1282,6 +1348,57 @@
     if(e.target === document.getElementById('rulesModal')) closeRulesModal();
   });
 
+  function getCookie(name){
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if(parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function confirmReservation(){
+    if(!currentReservationData || !currentReservationData.roomUnitId){
+      alert('اطلاعات این واحد اقامتی ناقص است.');
+      return;
+    }
+    const btn = document.getElementById('resPayBtn');
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'در حال ثبت...';
+
+    fetch('api/reservations/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({
+        room_unit_id: currentReservationData.roomUnitId,
+        date: currentReservationData.date,
+      })
+    })
+      .then(r => {
+        if(r.status === 401){
+          window.location.href = 'login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+          return null;
+        }
+        return r.json().then(data => ({ok: r.ok, data}));
+      })
+      .then(result => {
+        if(!result) return;
+        if(result.ok && result.data.success){
+          openPaymentModal();
+        } else {
+          alert('امکان ثبت رزرو وجود ندارد؛ ممکن است ظرفیت این تاریخ تکمیل شده باشد.');
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+        }
+      })
+      .catch(() => {
+        alert('خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.');
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      });
+  }
+
   function openPaymentModal(){
     closeReservationModal();
     document.getElementById('paymentModal').classList.add('open');
@@ -1295,44 +1412,29 @@
 
   /* ---------- announcements (reused) ---------- */
   const announcements = [
+    {% for a in announcements %}
     {
-      title:"ثبت‌نام مهمان‌سراهای تابستانی از ۱۵ مرداد آغاز می‌شود",
-      date:"۱۴۰۵/۰۴/۱۰",
-      fullDate:"چهارشنبه ۱۰ تیر ۱۴۰۵ ساعت: ۱۰:۰۰",
-      views:"۵۱۲",
-      body:"به اطلاع اعضای محترم خانه کارگر می‌رساند، ثبت‌نام رزرو مهمان‌سراهای تابستانی از تاریخ ۱۵ مرداد آغاز می‌شود. با توجه به محدودیت ظرفیت، پیشنهاد می‌شود اعضای محترم پیش از تکمیل ظرفیت نسبت به ثبت رزرو خود از طریق همین سامانه اقدام نمایند.",
-      link:{label:"جهت مشاهده‌ی جدول ظرفیت مهمان‌سراها به لینک زیر مراجعه فرمایید:", url:"#"}
+      title: "{{ a.title|escapejs }}",
+      date: "{{ a.date_short }}",
+      fullDate: "{{ a.date_full }}",
+      body: "{{ a.body|escapejs }}"
     },
-    {
-      title:"تعطیلی موقت استراحتگاه چمخاله جهت بازسازی",
-      date:"۱۴۰۵/۰۴/۰۲",
-      fullDate:"سه‌شنبه ۲ تیر ۱۴۰۵ ساعت: ۱۶:۲۵",
-      views:"۷۳۲۹",
-      body:"به اطلاع میهمانان گرامی مجتمع استراحتگاه شهید امامی (چمخاله) می‌رساند، این مجموعه از تاریخ فوق به‌مدت محدود جهت انجام عملیات بازسازی و نوسازی واحدهای اقامتی تعطیل خواهد بود. رزروهای ثبت‌شده در این بازه به‌صورت خودکار لغو و مبلغ پرداختی به کیف‌پول کاربر بازگردانده می‌شود."
-    },
-    {
-      title:"افزایش ظرفیت مهمان‌سرای مشهد در فصل زیارتی",
-      date:"۱۴۰۵/۰۳/۲۵",
-      fullDate:"دوشنبه ۲۵ خرداد ۱۴۰۵ ساعت: ۰۹:۱۵",
-      views:"۱٬۲۴۰",
-      body:"با توجه به افزایش تقاضای زیارتی در ماه‌های پیش‌رو، ظرفیت پذیرش زائرسرا و استراحتگاه پردیس مشهد افزایش یافته است. اعضای محترم می‌توانند برای بازه‌های زمانی جدید نیز از طریق بخش «مشاهده ظرفیت‌های خالی» اقدام به رزرو نمایند."
-    },
-    {
-      title:"تمدید مهلت استفاده از کارت عضویت تا پایان سال",
-      date:"۱۴۰۵/۰۳/۱۵",
-      fullDate:"جمعه ۱۵ خرداد ۱۴۰۵ ساعت: ۱۲:۴۰",
-      views:"۳۴۸",
-      body:"مهلت استفاده از تخفیفات ویژه‌ی کارت عضویت خانه کارگر که قرار بود در پایان فصل بهار منقضی شود، تا پایان سال جاری تمدید گردید. اعضای محترم می‌توانند همچنان از تخفیفات مهمان‌سراها و هتل‌های طرف قرارداد بهره‌مند شوند."
-    }
+    {% endfor %}
   ];
 
   const announceList = document.getElementById('announceList');
-  announcements.forEach((a, i) => {
+  if(announcements.length === 0){
     const li = document.createElement('li');
-    li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
-    li.addEventListener('click', () => openAnnounceModal(i));
+    li.innerHTML = `<span class="a-title" style="color:var(--muted)">اطلاعیه‌ای موجود نیست</span>`;
     announceList.appendChild(li);
-  });
+  } else {
+    announcements.forEach((a, i) => {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="a-title">${a.title}</span><span class="a-date">${a.date}</span>`;
+      li.addEventListener('click', () => openAnnounceModal(i));
+      announceList.appendChild(li);
+    });
+  }
 
   const announceModal = document.getElementById('announceModal');
   function openAnnounceModal(i){
@@ -1340,7 +1442,7 @@
     document.getElementById('announceModalTitle').textContent = a.title;
     document.getElementById('announceModalBody').textContent = a.body;
     document.getElementById('announceModalDate').textContent = a.fullDate;
-    document.getElementById('announceModalViews').textContent = `تعداد بازدید: ${a.views}`;
+    document.getElementById('announceModalViews').textContent = a.views !== undefined ? `تعداد بازدید: ${a.views}` : '';
     const linkBox = document.getElementById('announceModalLink');
     if(a.link){
       linkBox.style.display = 'block';
