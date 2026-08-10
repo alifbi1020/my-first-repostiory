@@ -881,7 +881,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>
           </div>
           <h3>رزرو‌های تأیید شده</h3>
-          <p class="dash-stat-count">۰ مورد</p>
+          <p class="dash-stat-count" id="confirmed_count">{{ confirmed_count|default:0 }} مورد</p>
           <p class="dash-stat-detail"></p>
         </button>
 
@@ -890,7 +890,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></svg>
           </div>
           <h3>رزرو‌های لغو شده</h3>
-          <p class="dash-stat-count">۰ مورد</p>
+          <p class="dash-stat-count" id="cancelled_count">{{ cancelled_count|default:0 }} مورد</p>
           <p class="dash-stat-detail"></p>
         </button>
 
@@ -899,7 +899,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
           </div>
           <h3>صورت‌حساب‌های من</h3>
-          <p class="dash-stat-count">۰ مورد</p>
+          <p class="dash-stat-count" id="invoices_count">{{ invoices_count|default:0 }} مورد</p>
           <p class="dash-stat-detail"></p>
         </button>
 
@@ -908,7 +908,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/><path d="M9 12h6"/></svg>
           </div>
           <h3>پرداخت‌های در انتظار</h3>
-          <p class="dash-stat-count">۰ مورد</p>
+          <p class="dash-stat-count" id="pending_count">{{ pending_count|default:0 }} مورد</p>
           <p class="dash-stat-detail"></p>
         </button>
       </div>
@@ -1373,6 +1373,40 @@ function handleVacancySearch(){
     toast.classList.add('show');
     clearTimeout(toast._t);
     toast._t = setTimeout(() => toast.classList.remove('show'), 2600);
+  }
+
+  // کامنت: تابع به‌روزرسانی آمار داشبورد از سرور
+  async function updateDashboardStats(){
+    try {
+      const response = await fetch('/dashboard/stats/');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // کامنت: به‌روزرسانی تعداد رزروهای تأیید شده
+          const confirmedEl = document.getElementById('confirmed_count');
+          if (confirmedEl) {
+            confirmedEl.textContent = data.confirmed_count + ' مورد';
+          }
+          // کامنت: به‌روزرسانی تعداد رزروهای لغو شده
+          const cancelledEl = document.getElementById('cancelled_count');
+          if (cancelledEl) {
+            cancelledEl.textContent = data.cancelled_count + ' مورد';
+          }
+          // کامنت: به‌روزرسانی تعداد صورت‌حساب‌ها
+          const invoicesEl = document.getElementById('invoices_count');
+          if (invoicesEl) {
+            invoicesEl.textContent = data.invoices_count + ' مورد';
+          }
+          // کامنت: به‌روزرسانی تعداد پرداخت‌های در انتظار
+          const pendingEl = document.getElementById('pending_count');
+          if (pendingEl) {
+            pendingEl.textContent = data.pending_count + ' مورد';
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error updating dashboard stats:', error);
+    }
   }
 </script>
 

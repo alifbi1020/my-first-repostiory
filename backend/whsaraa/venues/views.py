@@ -77,6 +77,11 @@ def dashboard_view(request):
             user=request.user, status='confirmed'
         ).count()
         
+        # کامنت: شمارش رزروهای لغوشده کاربر
+        cancelled_count = Reservation.objects.filter(
+            user=request.user, status='cancelled'
+        ).count()
+        
         # کامنت: شمارش رزروهای در انتظار پرداخت (که هنوز منقضی نشده‌اند)
         pending_reservations = Reservation.objects.filter(
             user=request.user, status='pending'
@@ -84,28 +89,23 @@ def dashboard_view(request):
         # کامنت: فیلتر کردن رزروهای منقضی‌شده از لیست در انتظار
         active_pending_count = sum(1 for r in pending_reservations if not r.is_expired())
         
-        # کامنت: شمارش رزروهای تاییدشده برای نمایش در داشبورد
-        confirmed_reservations_count = Reservation.objects.filter(
-            user=request.user, status='confirmed'
-        ).count()
+        # کامنت: شمارش صورت‌حساب‌ها (فعلاً همان تعداد رزروهای تاییدشده در نظر گرفته شده)
+        invoices_count = confirmed_count
         
-        # کامنت: شمارش کل رزروهای کاربر
-        total_reservations_count = Reservation.objects.filter(
-            user=request.user
-        ).exclude(status='expired').count()
     else:
         confirmed_count = 0
+        cancelled_count = 0
         active_pending_count = 0
-        confirmed_reservations_count = 0
-        total_reservations_count = 0
+        invoices_count = 0
     
     return render(request, 'dashboard.html', {
         'cities': cities,
         'announcements': get_visible_announcements(request),
         'user': request.user,
         'confirmed_count': confirmed_count,  # کامنت: تعداد رزروهای قطعی
+        'cancelled_count': cancelled_count,  # کامنت: تعداد رزروهای لغوشده
         'pending_count': active_pending_count,  # کامنت: تعداد پرداخت‌های در انتظار (غیرمنقضی)
-        'total_reservations': total_reservations_count,  # کامنت: تعداد کل رزروها
+        'invoices_count': invoices_count,  # کامنت: تعداد صورت‌حساب‌ها
     })
 
 
@@ -131,10 +131,20 @@ def dashboard_stats(request):
         user=request.user, status='confirmed'
     ).count()
     
+    # کامنت: شمارش رزروهای لغوشده
+    cancelled_count = Reservation.objects.filter(
+        user=request.user, status='cancelled'
+    ).count()
+    
+    # کامنت: شمارش صورت‌حساب‌ها (فعلاً همان تعداد رزروهای تاییدشده)
+    invoices_count = confirmed_count
+    
     return JsonResponse({
         'success': True,
         'pending_count': pending_count,
         'confirmed_count': confirmed_count,
+        'cancelled_count': cancelled_count,
+        'invoices_count': invoices_count,
     })
 
 def vacancy_list(request):
