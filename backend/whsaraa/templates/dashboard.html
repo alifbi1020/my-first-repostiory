@@ -244,7 +244,7 @@
   /* --- Stat cards --- */
   .dash-stats-grid{
     display:grid;
-    grid-template-columns:repeat(3, 1fr);
+    grid-template-columns:repeat(4, 1fr);
     gap:18px;
   }
   .dash-stat-card{
@@ -899,6 +899,15 @@
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l3 3v15H6z"/><path d="M9 9h6M9 13h6M9 17h3"/></svg>
           </div>
           <h3>صورت‌حساب‌های من</h3>
+          <p class="dash-stat-count">۰ مورد</p>
+          <p class="dash-stat-detail"></p>
+        </button>
+
+        <button class="dash-stat-card tone-gold" onclick="toggleDashCard(this)" data-detail="پرداخت در انتظاری برای نمایش وجود ندارد.">
+          <div class="dash-stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/><path d="M9 12h6"/></svg>
+          </div>
+          <h3>پرداخت‌های در انتظار</h3>
           <p class="dash-stat-count">۰ مورد</p>
           <p class="dash-stat-detail"></p>
         </button>
