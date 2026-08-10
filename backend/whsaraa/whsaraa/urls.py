@@ -17,11 +17,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from django.views.generic import TemplateView
-from venues.views import city_results, home, dashboard, vacancy_list,dashboard_view
+from venues.views import city_results, home, dashboard, vacancy_list, dashboard_view, dashboard_stats
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import login_view, logout_view
-from reservations.views import create_reservation
+from reservations.views import create_reservation, get_reservation_detail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,6 +32,8 @@ urlpatterns = [
     path('city.html', city_results, name='city_results'),
     path('api/vacancies/', vacancy_list, name='vacancy_list'),
     path('api/reservations/create/', create_reservation, name='create_reservation'),
+    path('api/reservations/<int:reservation_id>/', get_reservation_detail, name='get_reservation_detail'),
+    path('api/dashboard/stats/', dashboard_stats, name='dashboard_stats'),
 
     path('login.html', login_view, name='login'),
     path('logout/', logout_view, name='logout'),

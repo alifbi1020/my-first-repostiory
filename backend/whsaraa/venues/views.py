@@ -108,6 +108,35 @@ def dashboard_view(request):
         'total_reservations': total_reservations_count,  # کامنت: تعداد کل رزروها
     })
 
+
+def dashboard_stats(request):
+    """
+    کامنت: این ویو آمار داشبورد را به‌صورت JSON برمی‌گرداند.
+    - برای آپدیت کردن کارت‌های داشبورد بعد از ثبت رزرو جدید استفاده می‌شود.
+    """
+    from reservations.models import Reservation
+    from django.utils import timezone
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'login_required'}, status=401)
+    
+    # کامنت: شمارش رزروهای در انتظار (غیرمنقضی)
+    pending_reservations = Reservation.objects.filter(
+        user=request.user, status='pending'
+    )
+    pending_count = sum(1 for r in pending_reservations if not r.is_expired())
+    
+    # کامنت: شمارش رزروهای تاییدشده
+    confirmed_count = Reservation.objects.filter(
+        user=request.user, status='confirmed'
+    ).count()
+    
+    return JsonResponse({
+        'success': True,
+        'pending_count': pending_count,
+        'confirmed_count': confirmed_count,
+    })
+
 def vacancy_list(request):
     date_str = request.GET.get('date', '')
 

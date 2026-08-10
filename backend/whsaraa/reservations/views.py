@@ -81,3 +81,38 @@ def create_reservation(request):
         'status': reservation.status,
         'payment_deadline': reservation.payment_deadline.isoformat() if reservation.payment_deadline else None,
     })
+
+
+def get_reservation_detail(request, reservation_id):
+    """
+    کامنت: این ویو جزئیات یک رزرو را برمی‌گرداند.
+    - برای پر کردن مودال شناسنامه رزرو در فرانت استفاده می‌شود.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'login_required'}, status=401)
+
+    try:
+        reservation = Reservation.objects.select_related(
+            'room_unit__venue__city',
+            'room_unit__unit_type'
+        ).get(id=reservation_id, user=request.user)
+    except Reservation.DoesNotExist:
+        return JsonResponse({'error': 'not_found'}, status=404)
+
+    # کامنت: ساختن دیتای رزرو برای ارسال به فرانت
+    data = {
+        'city_name': reservation.room_unit.venue.city.name if reservation.room_unit.venue.city else '',
+        'venue_name': reservation.room_unit.venue.name,
+        'unit_type': reservation.room_unit.unit_type.name if reservation.room_unit.unit_type else '',
+        'checkin_date': jdatetime.date.fromgregorian(date=reservation.date).strftime('%Y-%m-%d'),
+        'checkout_date': jdatetime.date.fromgregorian(date=reservation.date + timedelta(days=3)).strftime('%Y-%m-%d'),
+        'total_price': reservation.price_at_booking * 3,  # کامنت: فرض بر ۳ شب اقامت
+        'image_url': reservation.room_unit.image.url if reservation.room_unit.image else None,
+        'status': reservation.status,
+        'payment_type': reservation.payment_type,
+    }
+
+    return JsonResponse({
+        'success': True,
+        'reservation': data
+    })

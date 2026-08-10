@@ -1461,12 +1461,86 @@
   
   // کامنت: تابع کمکی برای باز کردن مودال شناسنامه رزرو پس از تایید
   function openReservationModalForConfirmation(reservationId) {
-    // کامنت: اینجا می‌توانید اطلاعات رزرو را از سرور بگیرید و نمایش دهید
-    // فعلاً فقط مودال را باز می‌کنیم
-    const modal = document.getElementById('reservationModal');
-    if (modal) {
-      modal.classList.add('open');
-    }
+    // کامنت: گرفتن اطلاعات رزرو از سرور و پر کردن مودال
+    fetch(`/api/reservations/${reservationId}/`, {
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (!data.success) {
+        console.error('خطا در دریافت اطلاعات رزرو');
+        return;
+      }
+      
+      const res = data.reservation;
+      
+      // کامنت: پر کردن اطلاعات در مودال شناسنامه
+      document.getElementById('resInfoCity').textContent = res.city_name || '';
+      document.getElementById('resInfoVenue').textContent = res.venue_name || '';
+      document.getElementById('resInfoUnit').textContent = res.unit_type || '';
+      document.getElementById('resInfoCheckin').textContent = res.checkin_date || '';
+      document.getElementById('resInfoCheckout').textContent = res.checkout_date || '';
+      document.getElementById('resInfoTotal').textContent = res.total_price ? `${res.total_price.toLocaleString()} تومان` : '';
+      
+      // کامنت: تنظیم تصویر و عنوان هیرو
+      const heroImg = document.getElementById('resHeroImg');
+      const heroPlaceholder = document.getElementById('resHeroPlaceholder');
+      if (res.image_url) {
+        heroImg.src = res.image_url;
+        heroImg.style.display = 'block';
+        heroPlaceholder.style.display = 'none';
+      } else {
+        heroImg.style.display = 'none';
+        heroPlaceholder.style.display = 'block';
+      }
+      
+      document.getElementById('resHeroCity').textContent = res.city_name || '';
+      document.getElementById('resHeroVenue').textContent = res.venue_name || '';
+      
+      // کامنت: باز کردن مودال
+      const modal = document.getElementById('reservationModal');
+      if (modal) {
+        modal.classList.add('open');
+      }
+      
+      // کامنت: رفرش کردن داشبورد برای آپدیت کردن آمار
+      refreshDashboard();
+    })
+    .catch(err => {
+      console.error('خطا در دریافت اطلاعات رزرو:', err);
+    });
+  }
+  
+  // کامنت: تابع رفرش داشبورد برای آپدیت کردن آمار رزروها
+  function refreshDashboard() {
+    // کامنت: درخواست به سرور برای دریافت آمار جدید
+    fetch('/api/dashboard/stats/', {
+      method: 'GET',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+      }
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        // کامنت: آپدیت کردن کارت‌های داشبورد
+        const pendingEl = document.querySelector('.dashboard-card:nth-child(4) .stat-value');
+        const confirmedEl = document.querySelector('.dashboard-card:nth-child(1) .stat-value');
+        
+        if (pendingEl) {
+          pendingEl.textContent = `${data.pending_count} مورد`;
+        }
+        if (confirmedEl) {
+          confirmedEl.textContent = `${data.confirmed_count} مورد`;
+        }
+      }
+    })
+    .catch(err => {
+      console.error('خطا در رفرش داشبورد:', err);
+    });
   }
   
   document.getElementById('paymentModal').addEventListener('click', (e) => {
