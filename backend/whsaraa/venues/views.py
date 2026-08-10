@@ -63,11 +63,49 @@ def dashboard(request):
     return render(request, 'dashboard.html', {'cities': cities})
 
 def dashboard_view(request):
+    """
+    کامنت: ویو داشبورد کاربر که تعداد رزروها و پرداخت‌های در انتظار را نمایش می‌دهد.
+    """
+    from reservations.models import Reservation  # کامنت: ایمپورت داخلی برای جلوگیری از سیکل
+    from django.utils import timezone
+    
     cities = city.objects.all().order_by('name')
+    
+    if request.user.is_authenticated:
+        # کامنت: شمارش رزروهای تاییدشده کاربر
+        confirmed_count = Reservation.objects.filter(
+            user=request.user, status='confirmed'
+        ).count()
+        
+        # کامنت: شمارش رزروهای در انتظار پرداخت (که هنوز منقضی نشده‌اند)
+        pending_reservations = Reservation.objects.filter(
+            user=request.user, status='pending'
+        )
+        # کامنت: فیلتر کردن رزروهای منقضی‌شده از لیست در انتظار
+        active_pending_count = sum(1 for r in pending_reservations if not r.is_expired())
+        
+        # کامنت: شمارش رزروهای تاییدشده برای نمایش در داشبورد
+        confirmed_reservations_count = Reservation.objects.filter(
+            user=request.user, status='confirmed'
+        ).count()
+        
+        # کامنت: شمارش کل رزروهای کاربر
+        total_reservations_count = Reservation.objects.filter(
+            user=request.user
+        ).exclude(status='expired').count()
+    else:
+        confirmed_count = 0
+        active_pending_count = 0
+        confirmed_reservations_count = 0
+        total_reservations_count = 0
+    
     return render(request, 'dashboard.html', {
         'cities': cities,
         'announcements': get_visible_announcements(request),
         'user': request.user,
+        'confirmed_count': confirmed_count,  # کامنت: تعداد رزروهای قطعی
+        'pending_count': active_pending_count,  # کامنت: تعداد پرداخت‌های در انتظار (غیرمنقضی)
+        'total_reservations': total_reservations_count,  # کامنت: تعداد کل رزروها
     })
 
 def vacancy_list(request):

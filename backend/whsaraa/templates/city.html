@@ -1057,7 +1057,7 @@
     </div>
     <p class="payment-modal-desc">لطفاً روش پرداخت خود را انتخاب کنید:</p>
     <div class="payment-options">
-      <button class="payment-option-btn" onclick="showToast('به‌زودی: اتصال به کیف پول')">
+      <button class="payment-option-btn" onclick="selectPaymentMethod('wallet')">
         <div class="payment-option-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/><circle cx="17" cy="15" r="2"/></svg>
         </div>
@@ -1068,7 +1068,7 @@
         <svg class="payment-option-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
       </button>
 
-      <button class="payment-option-btn" onclick="showToast('به‌زودی: اتصال به درگاه پرداخت')">
+      <button class="payment-option-btn" onclick="selectPaymentMethod('gateway')">
         <div class="payment-option-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
         </div>
@@ -1079,7 +1079,7 @@
         <svg class="payment-option-arrow" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
       </button>
 
-      <button class="payment-option-btn" onclick="showToast('رزرو موقت با موفقیت ثبت شد')">
+      <button class="payment-option-btn" onclick="selectPaymentMethod('temporary')">
         <div class="payment-option-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
         </div>
@@ -1417,6 +1417,78 @@
   function closePaymentModal(){
     document.getElementById('paymentModal').classList.remove('open');
   }
+  
+  // کامنت: متغیر سراسری برای ذخیره روش پرداخت انتخابی کاربر
+  let selectedPaymentMethod = 'gateway';
+  
+  // کامنت: تابع انتخاب روش پرداخت - ذخیره نوع و ارسال به سرور
+  function selectPaymentMethod(method) {
+    selectedPaymentMethod = method;
+    
+    // کامنت: ارسال درخواست به بک‌اند با نوع پرداخت انتخابی
+    const btn = document.getElementById('resPayBtn');
+    if (!btn) return;
+    
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = 'در حال ثبت...';
+    
+    fetch('/api/reservations/create/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken'),
+      },
+      body: JSON.stringify({
+        room_unit_id: currentReservationData.roomUnitId,
+        date: currentReservationData.date,
+        payment_type: method,  // کامنت: ارسال نوع پرداخت به بک‌اند
+      })
+    })
+      .then(r => {
+        if(r.status === 401){
+          window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
+          return null;
+        }
+        return r.json().then(data => ({ok: r.ok, data}));
+      })
+      .then(result => {
+        if(!result) return;
+        if(result.ok && result.data.success){
+          // کامنت: نمایش پیام مناسب بر اساس نوع پرداخت
+          if (method === 'temporary') {
+            showToast('رزرو موقت با موفقیت ثبت شد. ۱۰ دقیقه فرصت پرداخت دارید.');
+          } else if (method === 'wallet') {
+            showToast('پرداخت از طریق کیف پول با موفقیت انجام شد.');
+          } else {
+            showToast('رزرو با موفقیت ثبت شد.');
+          }
+          closePaymentModal();
+          // کامنت: باز کردن مودال شناسنامه رزرو
+          openReservationModalForConfirmation(result.data.reservation_id);
+        } else {
+          alert('امکان ثبت رزرو وجود ندارد؛ ممکن است ظرفیت این تاریخ تکمیل شده باشد.');
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+        }
+      })
+      .catch(() => {
+        alert('خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.');
+        btn.disabled = false;
+        btn.textContent = originalLabel;
+      });
+  }
+  
+  // کامنت: تابع کمکی برای باز کردن مودال شناسنامه رزرو پس از تایید
+  function openReservationModalForConfirmation(reservationId) {
+    // کامنت: اینجا می‌توانید اطلاعات رزرو را از سرور بگیرید و نمایش دهید
+    // فعلاً فقط مودال را باز می‌کنیم
+    const modal = document.getElementById('reservationModal');
+    if (modal) {
+      modal.classList.add('open');
+    }
+  }
+  
   document.getElementById('paymentModal').addEventListener('click', (e) => {
     if(e.target === document.getElementById('paymentModal')) closePaymentModal();
   });
