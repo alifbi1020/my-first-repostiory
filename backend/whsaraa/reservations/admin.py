@@ -10,10 +10,8 @@ class ReservationAdmin(admin.ModelAdmin):
     search_fields = ('user__first_name', 'user__last_name', 'room_unit__venue__name')
     
     def is_expired_display(self, obj):
-        """کامنت: نمایش وضعیت انقضا در پنل ادمین"""
-        if obj.is_expired():
-            return "بله (منقضی شده)"
-        return "خیر"
+        """کامنت: نمایش وضعیت انقضا در پنل ادمین با آیکون بله/خیر"""
+        return obj.is_expired()
     is_expired_display.short_description = "آیا منقضی شده؟"
     is_expired_display.boolean = True
     
