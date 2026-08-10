@@ -1423,15 +1423,25 @@
   
   // کامنت: تابع انتخاب روش پرداخت - ذخیره نوع و ارسال به سرور
   function selectPaymentMethod(method) {
+    console.log('روش پرداخت انتخاب شد:', method);  // کامنت: لاگ برای دیباگ
     selectedPaymentMethod = method;
     
     // کامنت: ارسال درخواست به بک‌اند با نوع پرداخت انتخابی
     const btn = document.getElementById('resPayBtn');
-    if (!btn) return;
+    if (!btn) {
+      console.error('دکمه resPayBtn پیدا نشد!');
+      return;
+    }
     
     btn.disabled = true;
     const originalLabel = btn.textContent;
     btn.textContent = 'در حال ثبت...';
+    
+    console.log('ارسال درخواست به /api/reservations/create/ با داده‌های:', {
+      room_unit_id: currentReservationData.roomUnitId,
+      date: currentReservationData.date,
+      payment_type: method
+    });
     
     fetch('/api/reservations/create/', {
       method: 'POST',
@@ -1446,6 +1456,7 @@
       })
     })
       .then(r => {
+        console.log('پاسخ سرور:', r.status);
         if(r.status === 401){
           window.location.href = '/login.html?next=' + encodeURIComponent(window.location.pathname + window.location.search);
           return null;
@@ -1454,6 +1465,7 @@
       })
       .then(result => {
         if(!result) return;
+        console.log('نتیجه پردازش:', result);
         if(result.ok && result.data.success){
           // کامنت: نمایش پیام مناسب بر اساس نوع پرداخت
           if (method === 'temporary') {
@@ -1472,7 +1484,8 @@
           btn.textContent = originalLabel;
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('خطا در ارتباط با سرور:', err);
         alert('خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.');
         btn.disabled = false;
         btn.textContent = originalLabel;
