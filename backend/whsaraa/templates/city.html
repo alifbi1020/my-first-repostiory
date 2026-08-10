@@ -1365,17 +1365,20 @@
     if(parts.length === 2) return parts.pop().split(';').shift();
   }
 
+  // کامنت: تابع اصلی رزرو - ابتدا رزرو را با وضعیت "در انتظار پرداخت" می‌سازد، سپس مودال انتخاب روش پرداخت را باز می‌کند
   function confirmReservation(){
     if(!currentReservationData || !currentReservationData.roomUnitId){
       alert('اطلاعات این واحد اقامتی ناقص است.');
       return;
     }
+    
     const btn = document.getElementById('resPayBtn');
     btn.disabled = true;
     const originalLabel = btn.textContent;
-    btn.textContent = 'در حال ثبت...';
+    btn.textContent = 'در حال ثبت رزرو...';
 
-    fetch('api/reservations/create/', {
+    // کامنت: ارسال درخواست به بک‌اند برای ایجاد رزرو اولیه با نوع پرداخت "temporary" (موقت)
+    fetch('/api/reservations/create/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1384,6 +1387,7 @@
       body: JSON.stringify({
         room_unit_id: currentReservationData.roomUnitId,
         date: currentReservationData.date,
+        payment_type: 'temporary'  // کامنت: نوع پرداخت موقت برای رزرو ۱۰ دقیقه‌ای
       })
     })
       .then(r => {
@@ -1396,14 +1400,20 @@
       .then(result => {
         if(!result) return;
         if(result.ok && result.data.success){
+          // کامنت: ذخیره شناسه رزرو ساخته شده برای استفاده در مراحل بعد
+          window.currentReservationId = result.data.reservation_id;
+          
+          // کامنت: باز کردن مودال انتخاب روش پرداخت پس از موفقیت‌آمیز بودن رزرو
           openPaymentModal();
+          showToast('رزرو موقت با موفقیت ثبت شد. لطفاً روش پرداخت را انتخاب کنید.');
         } else {
           alert('امکان ثبت رزرو وجود ندارد؛ ممکن است ظرفیت این تاریخ تکمیل شده باشد.');
           btn.disabled = false;
           btn.textContent = originalLabel;
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('خطا در ایجاد رزرو:', error);
         alert('خطا در برقراری ارتباط با سرور. دوباره تلاش کنید.');
         btn.disabled = false;
         btn.textContent = originalLabel;
