@@ -80,6 +80,7 @@ def create_reservation(request):
                 user=request.user,
                 room_unit=room_unit,
                 date=selected_date,
+                checkout_date=selected_date + timedelta(days=3),  # کامنت: فرض بر ۳ شب اقامت
                 price_at_booking=room_unit.price_per_night,
                 status=status,
                 payment_type=payment_type,

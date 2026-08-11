@@ -30,6 +30,7 @@ class Reservation(models.Model):
         verbose_name="واحد اقامتی",
     )
     date = models.DateField(verbose_name="تاریخ اقامت")
+    checkout_date = models.DateField(verbose_name="تاریخ خروج", blank=True, null=True)
     price_at_booking = models.PositiveBigIntegerField(verbose_name="قیمت ثبت‌شده (ریال)")
     status = models.CharField(
         max_length=20, choices=STATUS_CHOICES, default='pending', verbose_name="وضعیت"

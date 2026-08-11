@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>رزروهای من - سامانه سرا خانه کارگر</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css">
+{% load static %}
 <style>
   :root{
     --teal-dark:#0c3a3e;
@@ -260,7 +261,8 @@
   <div class="header-inner">
     <div class="brand">
       <div class="brand-emblem">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M9 14v7"/><path d="M15 14v7"/></svg>
+        <img src="{% static 'logo.png' %}" alt="لوگو" style="width:100%;height:100%;object-fit:contain;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none; width:26px; height:26px;"><path d="M3 21h18"/><path d="M5 21V7l8-4 8 4v14"/><path d="M9 10a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M9 14v7"/><path d="M15 14v7"/></svg>
       </div>
       <div class="brand-text">
         <h1>سامانه سرا خانه کارگر</h1>
@@ -302,7 +304,7 @@
           </span>
           <span>
             <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>
-            خروج: {{ reservation.date|add:"3 days"|date:"%Y-%m-%d" }}
+            خروج: {{ reservation.checkout_date|default:"-" }}
           </span>
         </div>
         <div class="reservation-price">{{ reservation.price_at_booking|floatformat:0 }} تومان × ۳ شب</div>
