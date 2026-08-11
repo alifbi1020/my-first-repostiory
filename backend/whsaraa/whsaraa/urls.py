@@ -21,7 +21,7 @@ from venues.views import city_results, home, dashboard, vacancy_list, dashboard_
 from django.conf import settings
 from django.conf.urls.static import static
 from accounts.views import login_view, logout_view
-from reservations.views import create_reservation, get_reservation_detail
+from reservations.views import create_reservation, get_reservation_detail, my_reservations_view, cancel_reservation
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,6 +33,8 @@ urlpatterns = [
     path('api/vacancies/', vacancy_list, name='vacancy_list'),
     path('api/reservations/create/', create_reservation, name='create_reservation'),
     path('api/reservations/<int:reservation_id>/', get_reservation_detail, name='get_reservation_detail'),
+    path('api/reservations/<int:reservation_id>/cancel/', cancel_reservation, name='cancel_reservation'),
+    path('my-reservations/', my_reservations_view, name='my_reservations'),
     path('api/dashboard/stats/', dashboard_stats, name='dashboard_stats'),
 
     path('login.html', login_view, name='login'),

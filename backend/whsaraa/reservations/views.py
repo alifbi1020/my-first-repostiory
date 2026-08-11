@@ -5,6 +5,8 @@ from django.db import transaction, IntegrityError
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
 from venues.models import RoomUnit, Availability
 from .models import Reservation
 
@@ -12,6 +14,26 @@ from .models import Reservation
 def _jalali_str_to_gregorian(date_str):
     jy, jm, jd = [int(p) for p in date_str.split('-')]
     return jdatetime.date(jy, jm, jd).togregorian()
+
+
+@login_required(login_url='/accounts/login/')
+def my_reservations_view(request):
+    """
+    کامنت: این ویو صفحه لیست رزروهای کاربر را نمایش می‌دهد.
+    - فقط رزروهای فعال (غیر از لغو شده و منقضی شده) نمایش داده می‌شوند.
+    - کاربر می‌تواند از اینجا رزروهای خود را لغو کند.
+    """
+    reservations = Reservation.objects.filter(
+        user=request.user
+    ).exclude(status__in=['cancelled', 'expired']).select_related(
+        'room_unit__venue__city',
+        'room_unit__unit_type'
+    ).order_by('-date')
+    
+    context = {
+        'reservations': reservations
+    }
+    return render(request, 'my_reservations.html', context)
 
 
 @require_POST
@@ -116,3 +138,41 @@ def get_reservation_detail(request, reservation_id):
         'success': True,
         'reservation': data
     })
+
+
+@login_required(login_url='/accounts/login/')
+@require_POST
+def cancel_reservation(request, reservation_id):
+    """
+    کامنت: این ویو رزرو را لغو کرده و ظرفیت را آزاد می‌کند.
+    - وضعیت رزرو به 'cancelled' تغییر می‌کند.
+    - ظرفیت اتاق در تاریخ مربوطه آزاد می‌شود (status = 'available').
+    """
+    try:
+        with transaction.atomic():
+            reservation = Reservation.objects.select_related('room_unit').get(
+                id=reservation_id, user=request.user
+            )
+            
+            # کامنت: اگر رزرو قبلاً لغو یا منقضی شده، خطا می‌دهیم
+            if reservation.status in ['cancelled', 'expired']:
+                return JsonResponse({'error': 'already_cancelled'}, status=400)
+            
+            # کامنت: تغییر وضعیت رزرو به لغو شده
+            reservation.status = 'cancelled'
+            reservation.save(update_fields=['status'])
+            
+            # کامنت: آزادسازی ظرفیت اتاق در تاریخ رزرو
+            availability = Availability.objects.filter(
+                room_unit=reservation.room_unit,
+                date=reservation.date
+            ).first()
+            
+            if availability and availability.status == 'full':
+                availability.status = 'available'
+                availability.save(update_fields=['status'])
+    
+    except Reservation.DoesNotExist:
+        return JsonResponse({'error': 'not_found'}, status=404)
+    
+    return JsonResponse({'success': True})
